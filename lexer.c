@@ -1,0 +1,175 @@
+#include "lexer.h"
+#include <stdio.h>
+
+t_tokenlst		*new_token_lst(int flags, char *str, t_tokens type)
+{
+	t_tokenlst	*fresh;
+
+	fresh = (t_tokenlst*)malloc(sizeof(t_tokenlst));
+	if (fresh == NULL)
+		return (NULL);
+	ft_memset((void*)fresh, 0, sizeof(t_tokenlst));
+	fresh->flags = flags;
+	fresh->str = str;
+	fresh->type = type;
+	fresh->next = NULL;
+	return (fresh);
+}
+
+int				tokenlst_addback(t_tokenlst **token_lst, int flags, char *str, t_tokens type)
+{
+	if (*token_lst == NULL)
+	{
+		if ((*token_lst = new_token_lst(flags, str, type)) == NULL)
+			return (FUNC_ERROR);
+		return (FUNC_SUCCESS);
+	}
+	else
+		return (tokenlst_addback(&(*token_lst)->next, flags, str, type));
+}
+
+int				is_spec(char c)
+{
+	if (c != '\0' && ft_strchr("~$/\\'\"", c) != NULL)
+		return (1);
+	return (0);
+}
+
+static	void	lexer_set_flags(t_token *token, char c)
+{
+	if (is_spec(c))
+		token->flags |= HAS_SPECIAL;
+	if (c == '"')
+		token->flags ^= DQUOTE_STATE;
+	if (c == '\'')
+		token->flags ^= QUOTE_STATE;
+}
+
+void			lexer_state_word_esc(t_token *token)
+{
+	if (CURRENT_CHAR != '\0')
+		lexer_change_state(token, &lexer_state_word);
+}
+
+int				is_shellspec(char c)
+{
+	if (c == '\n' || (ft_strchr("|><;&", c) != NULL))
+		return (1);
+	return (0);
+}
+
+void			lexer_state_word(t_token *token)
+{
+	if (is_spec(CURRENT_CHAR))
+		token->flags |= HAS_SPECIAL;
+	if (CURRENT_CHAR == '"' && (token->flags & QUOTE_STATE) == 0)
+		token->flags ^= DQUOTE_STATE;
+	if (CURRENT_CHAR == '\'' && (token->flags & DQUOTE_STATE) == 0)
+		token->flags ^= QUOTE_STATE;
+	if (CURRENT_CHAR == '\\' && (token->flags & QUOTE_STATE) == 0)
+		lexer_change_state(token, &lexer_state_word_esc);
+	else if (is_shellspec(CURRENT_CHAR) == 0 && ft_isblank(CURRENT_CHAR) == 0
+			&& CURRENT_CHAR != '\0')
+		lexer_change_state(token, &lexer_state_word);
+	else if (((token->flags & QUOTE_STATE) || (token->flags & DQUOTE_STATE))
+			&& CURRENT_CHAR != '\0')
+		lexer_change_state(token, &lexer_state_word);
+	else
+		token->tk_type = WORD;
+}
+
+void			lexer_change_state(t_token *token, void(*lexer_state)(t_token *token))
+{
+	(token->str_index)++;
+	(token->tk_len)++;
+	lexer_state(token);
+}
+
+void			lexer_state_start(t_token *token)
+{
+	lexer_set_flags(token, CURRENT_CHAR);
+	lexer_change_state(token, &lexer_state_word);
+}
+
+static int		ft_isblank(char c)
+{
+	if (c == ' ' || c == '\t')
+		return (1);
+	return (0);
+}
+
+int				add_token_to_lst(t_tokenlst *tokenlst, t_token *token)
+{
+	int		tk_start;
+	char	*str;
+
+	tk_start = token->str_index - token->tk_len;
+	if (tk_start < 0)
+		return (FUNC_ERROR);
+	if (token->tk_type == WORD || token->tk_type == IO_NUMBER)
+	{
+		if (!(str = ft_strnew((size_t)token->tk_len)))
+			return (FUNC_ERROR);
+		if (!(ft_strncpy(str, &(token->str[tk_start]), token->tk_len)))
+			return (FUNC_ERROR);
+	}
+	if (tokenlst_addback(&tokenlst, token->flags, str, token->tk_type) == FUNC_ERROR)
+		return (FUNC_ERROR);
+	return (FUNC_SUCCESS);
+}
+
+void			clean_token(t_token *token)
+{
+	(*token).flags = 0;
+	(*token).tk_len = 0;
+	(*token).tk_type = ERROR;;
+}
+
+int				lexer_scanner(char *input, t_tokenlst *token_lst)
+{
+	t_token	token;
+
+	ft_bzero(&token, sizeof(t_token));
+	token.str = input;
+	while (ft_isblank(TOKEN_CHAR))
+		(token.str_index)++;
+	while (TOKEN_CHAR != '\0')
+	{
+		lexer_state_start(&token);
+		if (add_token_to_lst(token_lst, &token) == FUNC_ERROR)
+			return (FUNC_ERROR);
+		clean_token(&token);
+		while (ft_isblank(TOKEN_CHAR))
+			(token.str_index)++;
+	}
+	return (FUNC_SUCCESS);
+}
+
+int				lexer(char **input, t_tokenlst **token_lst)
+{
+	if (tokenlst_addback(token_lst, 0, NULL, START) != FUNC_SUCCESS)
+		return (FUNC_ERROR);
+	if (lexer_scanner(*input, *token_lst) != FUNC_SUCCESS)
+		return (FUNC_ERROR);
+	if (tokenlst_addback(token_lst, 0, NULL, END) != FUNC_SUCCESS)
+		return (FUNC_ERROR);
+	return (FUNC_SUCCESS);
+}
+
+int				main(void)
+{
+	char		*str = "    sd   fsdf";
+	t_tokenlst	*tokenlst = NULL;
+
+	printf("%s\n", str);
+	lexer(&str, &tokenlst);
+	while (tokenlst)
+	{
+		printf("flags = %d\n", tokenlst->flags);
+		printf("str = %s\n", tokenlst->str);
+		printf("type = %d\n", tokenlst->type);
+		printf("\n");
+		tokenlst = tokenlst->next;
+	}
+	return (0);
+}

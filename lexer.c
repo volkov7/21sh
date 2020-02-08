@@ -30,7 +30,7 @@ int				tokenlst_addback(t_tokenlst **token_lst, int flags, char *str, t_tokens t
 
 int				is_spec(char c)
 {
-	if (c != '\0' && ft_strchr("~$/\\'\"", c) != NULL)
+	if (c != '\0' && ft_strchr("-~$/\\'\"", c) != NULL)
 		return (1);
 	return (0);
 }
@@ -85,10 +85,98 @@ void			lexer_change_state(t_token *token, void(*lexer_state)(t_token *token))
 	lexer_state(token);
 }
 
+void			lexer_state_orif(t_token *token)
+{
+	token->tk_type = OR_IF;
+}
+
+void			lexer_state_pipe(t_token *token)
+{
+	if (CURRENT_CHAR == '|')
+		lexer_change_state(token, &lexer_state_orif);
+	else
+		token->tk_type = PIPE;
+}
+
+void			lexer_state_dgreat(t_token *token)
+{
+	token->tk_type = DGREAT;
+}
+
+void			lexer_state_greatand(t_token *token)
+{
+	token->tk_type = GREATAND;
+}
+
+void			lexer_state_great(t_token *token)
+{
+	if (CURRENT_CHAR == '>')
+		lexer_change_state(token, &lexer_state_dgreat);
+	else if (CURRENT_CHAR == '&')
+		lexer_change_state(token, &lexer_state_greatand);
+	else
+		token->tk_type = GREAT;
+}
+
+void			lexer_state_dless(t_token *token)
+{
+	token->tk_type = DLESS;
+}
+
+void			lexer_state_lessand(t_token *token)
+{
+	token->tk_type = LESSAND;
+}
+
+void			lexer_state_less(t_token *token)
+{
+	if (CURRENT_CHAR == '<')
+		lexer_change_state(token, &lexer_state_dless);
+	else if (CURRENT_CHAR == '&')
+		lexer_change_state(token, &lexer_state_lessand);
+	else
+		token->tk_type = LESS;
+}
+
+void			lexer_state_semicol(t_token *token)
+{
+	token->tk_type = SEMICOL;
+}
+
+void			lexer_state_ionum(t_token *token)
+{
+	if (ft_isdigit(CURRENT_CHAR))
+		lexer_change_state(token, &lexer_state_ionum);
+	else if (CURRENT_CHAR == '>' || CURRENT_CHAR == '<')
+		token->tk_type = IO_NUMBER;
+	else
+		lexer_state_word(token);
+}
+
+void			lexer_state_newline(t_token *token)
+{
+	token->tk_type = NEWLINE;
+}
+
 void			lexer_state_start(t_token *token)
 {
 	lexer_set_flags(token, CURRENT_CHAR);
-	lexer_change_state(token, &lexer_state_word);
+	if (CURRENT_CHAR == '|')
+		lexer_change_state(token, &lexer_state_pipe);
+	else if (CURRENT_CHAR == '>')
+		lexer_change_state(token, &lexer_state_great);
+	else if (CURRENT_CHAR == '<')
+		lexer_change_state(token, &lexer_state_less);
+	else if (CURRENT_CHAR == ';')
+		lexer_change_state(token, &lexer_state_semicol);
+	else if (CURRENT_CHAR == '\\')
+		lexer_change_state(token, &lexer_state_word_esc);
+	else if (CURRENT_CHAR == '\n')
+		lexer_change_state(token, &lexer_state_newline);
+	else if (ft_isdigit(CURRENT_CHAR))
+		lexer_change_state(token, &lexer_state_ionum);
+	else
+		lexer_change_state(token, &lexer_state_word);
 }
 
 static int		ft_isblank(char c)
@@ -158,9 +246,11 @@ int				lexer(char **input, t_tokenlst **token_lst)
 
 int				main(void)
 {
-	char		*str = "    sd   fsdf";
+	// char		*str = "echo Hi, this is a string\\n";
+	char		*str;
 	t_tokenlst	*tokenlst = NULL;
 
+	str = ft_strdup("	 HOME=/ ls -la 	 || 	 ls 2>file \"Documents\";");
 	printf("%s\n", str);
 	lexer(&str, &tokenlst);
 	while (tokenlst)

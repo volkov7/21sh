@@ -5,12 +5,18 @@
 # include "./libft/libft.h"
 
 # define FUNC_ERROR		-1
+# define FUNC_FAIL		0
 # define FUNC_SUCCESS	1
 # define TOKEN_CHAR		token.str[token.str_index]
 # define CURRENT_CHAR	token->str[token->str_index]
+# define TOKEN_TYPE		token_lst->type
 # define HAS_SPECIAL	(1 << 0)
 # define QUOTE_STATE	(1 << 1)
 # define DQUOTE_STATE	(1 << 2)
+
+/*
+**----------------------------------lexer--------------------------------------
+*/
 
 typedef enum	e_tokens
 {
@@ -42,12 +48,26 @@ typedef struct	s_tokenlst
 
 typedef struct	s_toke
 {
-	t_tokens	tk_type;
-	int			tk_len;
-	char		*str;
-	int			str_index;
-	int			flags;
+	t_tokens			tk_type;
+	int					tk_len;
+	char				*str;
+	int					str_index;
+	int					flags;
 }				t_token;
+
+/*
+**----------------------------------parser-------------------------------------
+*/
+
+typedef struct	s_ast
+{
+	t_tokens			type;
+	char				*str;
+	int					flags;
+	struct s_ast		*left;
+	struct s_ast		*right;	
+}				t_ast;
+
 
 void			lexer_state_word(t_token *token);
 static int		ft_isblank(char c);

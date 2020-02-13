@@ -1,21 +1,113 @@
 #include "lexer.h"
 
-int		parser_cmd_prefix(t_tokenlst *token_lst, t_ast **ast)
+int		is_redirect(t_tokens type)
+{
+	if (type == DLESS || type == DGREAT || type == LESS ||
+			type == GREAT || type == LESSAND || type == GREATAND)
+		return (1);
+	return (0);
+}
+
+t_ast	*create_new_node(t_tokenlst *token)
+{
+	t_ast	*new;
+
+	if (!(new = (t_ast*)malloc(sizeof(t_ast))))
+		return (NULL);
+	new->flags = token->flags;
+	new->type = token->type;
+	if (token->str != NULL)
+		if (!(new->str = ft_strdup(token->str)))
+			return (NULL);
+	else
+		new->str = NULL;
+	new->left = NULL;
+	new->right = NULL;
+	return (new);
+}
+
+int		ast_addnode(t_tokenlst **token_lst, t_ast **ast)
+{
+	t_ast *new;
+
+	if (!(new = create_new_node(*token_lst)))
+		return (FUNC_ERROR);
+	new->left = *ast;
+	*ast = new;
+	(*token_lst) = (*token_lst)->next;
+}
+
+
+void	ast_del(t_ast **ast)
+{
+	if (ast == NULL || *ast == NULL)
+		return ;
+	if ((*ast)->left != NULL)
+		ast_del(&(*ast)->left);
+	if ((*ast)->right != NULL)
+		ast_del(&(*ast)->right);
+	if ((*ast)->str)
+		ft_strdel(&(*ast)->str);
+	ft_memdel((void**)ast);
+}
+
+int		return_ast_del(t_ast **ast)
+{
+	ast_del(ast);
+	return (FUNC_FAIL);
+}
+
+int		parser_io_redirect(t_tokenlst **token_lst, t_ast **ast)
+{
+	t_ast	*filename;
+
+	if (TOKEN_TYPE == IO_NUMBER && ast_addnode(token_lst, ast) == NULL)
+		return (FUNC_FAIL);
+	if (is_redirect(TOKEN_TYPE) == 0 || ast_addnode(token_lst, ast) == NULL)
+		return (return_ast_del(ast));
+	if (TOKEN_TYPE != WORD || ast_addnode(token_lst, &filename) == NULL)
+		return (return_ast_del(ast));
+	if ((*ast)->left == NULL)
+		(*ast)->left = filename;
+	else
+		(*ast)->left->left = filename;
+	(*ast)->right = (*ast)->left;
+	(*ast)->left = NULL;
+	return(FUNC_SUCCESS);
+}
+
+int		parser_cmd_prefix(t_tokenlst **token_lst, t_ast **prefix,
+							t_ast **last_prefix)
+{
+	t_ast	*new_prefix;
+
+	new_prefix = NULL;
+	if (TOKEN_TYPE == IO_NUMBER || is_redirect(TOKEN_TYPE))
+	{
+		if (parser_io_redirect(token_lst, &new_prefix) == FUNC_FAIL)
+			return (return_ast_del(&new_prefix));
+		if (*prefix == NULL)
+			*prefix = new_prefix;
+		else
+			(*last_prefix)->left = new_prefix;
+		last_prefix = new_prefix;
+		if (parser_cmd_prefix(token_lst, prefix, last_prefix) == FUNC_FAIL)
+			return (FUNC_FAIL);
+	}
+	return (FUNC_SUCCESS);
+}
+
+int		parser_cmd_word(t_tokenlst **token_lst, t_ast **ast)
 {
 	return (FUNC_FAIL);
 }
 
-int		parser_cmd_word(t_tokenlst *token_lst, t_ast **ast)
+int		parser_cmd_sufix(t_tokenlst **token_lst, t_ast **ast)
 {
 	return (FUNC_FAIL);
 }
 
-int		parser_cmd_sufix(t_tokenlst *token_lst, t_ast **ast)
-{
-	return (FUNC_FAIL);
-}
-
-int		parser_command(t_tokenlst *token_lst, t_ast **ast)
+int		parser_command(t_tokenlst **token_lst, t_ast **ast)
 {
 	t_ast	*prefix;
 	t_ast	*last_prefix;
@@ -24,32 +116,37 @@ int		parser_command(t_tokenlst *token_lst, t_ast **ast)
 	prefix = NULL;
 	last_prefix = NULL;
 	last_cmd_arg = NULL;
+	if (TOKEN_TYPE == WORD || TOKEN_TYPE == IO_NUMBER || is_redirect(TOKEN_TYPE))
+	{
+		if (parser_cmd_prefix(token_lst, &prefix, &last_prefix) == FUNC_FAIL)
+			return (FUNC_FAIL);
+	}
 }
 
-int		parser_pipe_sequence(t_tokenlst *token_lst, t_ast **ast)
+int		parser_pipe_sequence(t_tokenlst **token_lst, t_ast **ast)
 {
 	parser_command(token_lst, ast);
 }
 
-int		parser_and_or(t_tokenlst *token_lst, t_ast **ast)
+int		parser_and_or(t_tokenlst **token_lst, t_ast **ast)
 {
 	parser_pipe_sequence(token_lst, ast);
 }
 
-int		parser_list(t_tokenlst *token_lst, t_ast **ast)
+int		parser_list(t_tokenlst **token_lst, t_ast **ast)
 {
 	parser_and_or(token_lst, ast);
 }
 
-int		parser_complete_command(t_tokenlst *token_lst, t_ast **ast)
+int		parser_complete_command(t_tokenlst **token_lst, t_ast **ast)
 {
 	parser_list(token_lst, ast);
 }
 
-int		parser_start(t_tokenlst *token_lst, t_ast **ast)
+int		parser_start(t_tokenlst **token_lst, t_ast **ast)
 {
 	t_tokenlst	*tmp;
 
-	tmp = token_lst->next;
-	parser_complete_command(tmp, ast);
+	tmp = (*token_lst)->next;
+	parser_complete_command(&tmp, ast);
 }

@@ -9,7 +9,7 @@
 # define FUNC_SUCCESS	1
 # define TOKEN_CHAR		token.str[token.str_index]
 # define CURRENT_CHAR	token->str[token->str_index]
-# define TOKEN_TYPE		token_lst->type
+# define TOKEN_TYPE		(*token_lst)->type
 # define HAS_SPECIAL	(1 << 0)
 # define QUOTE_STATE	(1 << 1)
 # define DQUOTE_STATE	(1 << 2)

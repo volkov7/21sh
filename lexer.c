@@ -249,17 +249,19 @@ int				main(void)
 	// char		*str = "echo Hi, this is a string\\n";
 	char		*str;
 	t_tokenlst	*tokenlst = NULL;
+	t_ast		*ast = NULL;
 
 	str = ft_strdup("	 HOME=/ ls -la 	 || 	 ls 2>file \"Documents\";");
 	printf("%s\n", str);
 	lexer(&str, &tokenlst);
-	while (tokenlst)
-	{
-		printf("flags = %d\n", tokenlst->flags);
-		printf("str = %s\n", tokenlst->str);
-		printf("type = %d\n", tokenlst->type);
-		printf("\n");
-		tokenlst = tokenlst->next;
-	}
+	// while (tokenlst)
+	// {
+	// 	printf("flags = %d\n", tokenlst->flags);
+	// 	printf("str = %s\n", tokenlst->str);
+	// 	printf("type = %d\n", tokenlst->type);
+	// 	printf("\n");
+	// 	tokenlst = tokenlst->next;
+	// }
+	parser_start(&tokenlst, &ast);
 	return (0);
 }

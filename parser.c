@@ -17,8 +17,10 @@ t_ast	*create_new_node(t_tokenlst *token)
 	new->flags = token->flags;
 	new->type = token->type;
 	if (token->str != NULL)
+	{
 		if (!(new->str = ft_strdup(token->str)))
 			return (NULL);
+	}
 	else
 		new->str = NULL;
 	new->left = NULL;
@@ -31,10 +33,11 @@ int		ast_addnode(t_tokenlst **token_lst, t_ast **ast)
 	t_ast *new;
 
 	if (!(new = create_new_node(*token_lst)))
-		return (FUNC_ERROR);
+		return (FUNC_FAIL);
 	new->left = *ast;
 	*ast = new;
 	(*token_lst) = (*token_lst)->next;
+	return (FUNC_SUCCESS);
 }
 
 
@@ -65,11 +68,11 @@ int		parser_io_redirect(t_tokenlst **token_lst, t_ast **ast)
 {
 	t_ast	*filename;
 
-	if (TOKEN_TYPE == IO_NUMBER && ast_addnode(token_lst, ast) == NULL)
+	if (TOKEN_TYPE == IO_NUMBER && ast_addnode(token_lst, ast) == FUNC_FAIL)
 		return (FUNC_FAIL);
-	if (is_redirect(TOKEN_TYPE) == 0 || ast_addnode(token_lst, ast) == NULL)
+	if (is_redirect(TOKEN_TYPE) == 0 || ast_addnode(token_lst, ast) == FUNC_FAIL)
 		return (return_ast_del(ast));
-	if (TOKEN_TYPE != WORD || ast_addnode(token_lst, &filename) == NULL)
+	if (TOKEN_TYPE != WORD || ast_addnode(token_lst, &filename) == FUNC_FAIL)
 		return (return_ast_del(ast));
 	if ((*ast)->left == NULL)
 		(*ast)->left = filename;
@@ -94,7 +97,7 @@ int		parser_cmd_prefix(t_tokenlst **token_lst, t_ast **prefix,
 			*prefix = new_prefix;
 		else
 			(*last_prefix)->left = new_prefix;
-		last_prefix = new_prefix;
+		*last_prefix = new_prefix;
 		if (parser_cmd_prefix(token_lst, prefix, last_prefix) == FUNC_FAIL)
 			return (FUNC_FAIL);
 	}
@@ -107,7 +110,7 @@ int		parser_cmd_word(t_tokenlst **token_lst, t_ast **ast, t_ast **prefix)
 	{
 		if (ast_addnode(token_lst, ast) == FUNC_ERROR)
 			return (return_ast_del(ast));
-		(*ast)->right = prefix;
+		(*ast)->right = *prefix;
 		return (FUNC_SUCCESS);
 	}
 	else if (*prefix != NULL)
@@ -158,8 +161,29 @@ int		parser_cmd_sufix(t_tokenlst **token_lst, t_ast **ast,
 		if (!parser_cmd_arg(token_lst, ast, last_cmd_arg, last_prefix))
 			return (FUNC_FAIL);
 	}
-	return (FUNC_FAIL);
+	return (FUNC_SUCCESS);
 }
+
+int		add_right_node(t_tokenlst **token_lst, t_ast **ast,
+					int (*parser_func)(t_tokenlst **, t_ast **))
+{
+	t_ast	*right_node;
+
+	right_node = NULL;
+	if (parser_func(token_lst, &right_node) == FUNC_FAIL)
+		return (return_ast_del(ast));
+	(*ast)->right = right_node;
+	return(FUNC_SUCCESS);
+}
+
+/*
+**	Parser_command does three things
+**	It looks for redir tokens and they are set to prefix
+**	If there is a command, the prefix is added to the right of command
+**	If there is no command just return prefix
+**	Command arguments adding below command
+**	Any redirections are added to the end of prefix
+*/
 
 int		parser_command(t_tokenlst **token_lst, t_ast **ast)
 {
@@ -176,27 +200,91 @@ int		parser_command(t_tokenlst **token_lst, t_ast **ast)
 			return (FUNC_FAIL);
 		if (parser_cmd_word(token_lst, ast, &prefix) == FUNC_FAIL)
 			return (return_ast_del(ast));
+		if (!parser_cmd_sufix(token_lst, ast, &last_cmd_arg, &last_prefix))
+			return (return_ast_del(ast));
+		return (FUNC_SUCCESS);
 	}
+	return (FUNC_FAIL);
 }
+
+/*
+**	After parser_command, we can have a PIPE token
+**	PIPE token is adding to the ast
+**	Previous ast adding left below PIPE
+**	calling parser_command and result ast put in right node below PIPE
+*/
 
 int		parser_pipe_sequence(t_tokenlst **token_lst, t_ast **ast)
 {
-	parser_command(token_lst, ast);
+	if (parser_command(token_lst, ast) == FUNC_SUCCESS)
+	{
+		while (TOKEN_TYPE == PIPE)
+		{
+			if (ast_addnode(token_lst, ast) == FUNC_FAIL)
+				return(return_ast_del(ast));
+			if (add_right_node(token_lst, ast, &parser_command) == FUNC_FAIL)
+				return (FUNC_FAIL);
+		}
+		return (FUNC_SUCCESS);
+	}
+	return (FUNC_FAIL);
 }
+
+/*
+**	After parser_pipe_sequence, we can have an AND_IF or OR_IF token
+**	In that case the current token is adding to the ast
+**	previous ast adding to left node below AND_IF or OR_IF token
+**	calling parser_pipe_sequence and result put in right node below AND_IF or OR_IF token
+*/
 
 int		parser_and_or(t_tokenlst **token_lst, t_ast **ast)
 {
-	parser_pipe_sequence(token_lst, ast);
+	if (parser_pipe_sequence(token_lst, ast) == FUNC_SUCCESS)
+	{
+		while (TOKEN_TYPE == AND_IF || TOKEN_TYPE == OR_IF)
+		{
+			if (ast_addnode(token_lst, ast) == FUNC_FAIL)
+				return(return_ast_del(ast));
+			if (!add_right_node(token_lst, ast, &parser_pipe_sequence))
+				return (FUNC_FAIL);
+		}
+		return (FUNC_SUCCESS);
+	}
+	return (FUNC_FAIL);
 }
+
+/*
+**	After parser_and_or is done, we can have SEMICOL token
+**	In that case the current token is adding to the ast
+**	previous ast adding to left node below SEMICOL token
+**	calling parser_and_or and result put in right node below SEMICOL token
+*/
 
 int		parser_list(t_tokenlst **token_lst, t_ast **ast)
 {
-	parser_and_or(token_lst, ast);
+	if (parser_and_or(token_lst, ast) == FUNC_SUCCESS)
+	{
+		while (TOKEN_TYPE == SEMICOL)
+		{
+			if (ast_addnode(token_lst, ast) == FUNC_FAIL)
+				return(return_ast_del(ast));
+			if (TOKEN_TYPE != NEWLINE && TOKEN_TYPE != END)
+			{
+				if (add_right_node(token_lst, ast, &parser_and_or) == FUNC_FAIL)
+					return (FUNC_FAIL);
+			}
+		}
+		return (FUNC_SUCCESS);
+	}
+	return (FUNC_FAIL);
 }
 
 int		parser_complete_command(t_tokenlst **token_lst, t_ast **ast)
 {
-	parser_list(token_lst, ast);
+	if (parser_list(token_lst, ast) == FUNC_FAIL || (TOKEN_TYPE != NEWLINE &&
+													TOKEN_TYPE != END))
+		return(return_ast_del(ast));
+	return(FUNC_SUCCESS);
 }
 
 int		parser_start(t_tokenlst **token_lst, t_ast **ast)
@@ -204,5 +292,10 @@ int		parser_start(t_tokenlst **token_lst, t_ast **ast)
 	t_tokenlst	*tmp;
 
 	tmp = (*token_lst)->next;
-	parser_complete_command(&tmp, ast);
+	if (parser_complete_command(&tmp, ast) != FUNC_SUCCESS)
+	{
+		ft_putstr("Syntax error!\n");
+		return (FUNC_FAIL);
+	}
+	return (FUNC_SUCCESS);
 }

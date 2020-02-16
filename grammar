@@ -5,7 +5,7 @@
 %token    WORD
 %token    IO_NUMBER
 
-%token    SEMICOLON
+%token    SEMICOL
 /*        ';'         	                                          */
 %token    AND_IF    OR_IF
 /*        '&&'      '||'                                          */
@@ -35,4 +35,4 @@ cmd_suffix		 = {io_redirect | WORD}
 io_redirect		 = [IO_NUMBER] io_file
 io_file			 = (LESS | GREAT | DGREAT | LESSAND | GREATAND) filename
 filename		 = WORD
-separator_op	 = SEMICOLON
+separator_op	 = SEMICOL

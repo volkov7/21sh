@@ -6,7 +6,7 @@
 %token    IO_NUMBER
 
 %token    SEMICOLON
-/*        ';'         		                                      */
+/*        ';'         	                                          */
 %token    AND_IF    OR_IF
 /*        '&&'      '||'                                          */
 %token    PIPE
@@ -27,8 +27,7 @@ and_or			 = pipline {[AND_IF | OR_IF] pipline}
 pipline			 = pipe_sequence
 pipe_sequence	 = command {PIPE command}
 command			 = simple_command
-simple_command	 = cmd_prefix [cmd_word [cmd_suffix]]
-				 | cmd_name [cmd_suffix]
+simple_command	 = cmd_prefix [cmd_word [cmd_suffix]] | cmd_name [cmd_suffix]
 cmd_name		 = WORD
 cmd_word		 = WORD
 cmd_prefix		 = {io_redirect}
@@ -36,3 +35,4 @@ cmd_suffix		 = {io_redirect | WORD}
 io_redirect		 = [IO_NUMBER] io_file
 io_file			 = (LESS | GREAT | DGREAT | LESSAND | GREATAND) filename
 filename		 = WORD
+separator_op	 = SEMICOLON

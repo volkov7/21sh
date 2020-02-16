@@ -72,5 +72,7 @@ typedef struct	s_ast
 void			lexer_state_word(t_token *token);
 static int		ft_isblank(char c);
 void			lexer_change_state(t_token *token, void(*lexer_state)(t_token *token));
+int				parser_cmd_sufix(t_tokenlst **token_lst, t_ast **ast,
+						t_ast **last_cmd_arg, t_ast **last_prefix);
 
 #endif

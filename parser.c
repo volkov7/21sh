@@ -57,6 +57,10 @@ int		return_ast_del(t_ast **ast)
 	return (FUNC_FAIL);
 }
 
+/*
+** ast always will be NULL in this func. Create io_redirect tree
+*/
+
 int		parser_io_redirect(t_tokenlst **token_lst, t_ast **ast)
 {
 	t_ast	*filename;
@@ -97,13 +101,63 @@ int		parser_cmd_prefix(t_tokenlst **token_lst, t_ast **prefix,
 	return (FUNC_SUCCESS);
 }
 
-int		parser_cmd_word(t_tokenlst **token_lst, t_ast **ast)
+int		parser_cmd_word(t_tokenlst **token_lst, t_ast **ast, t_ast **prefix)
 {
+	if (TOKEN_TYPE == WORD)
+	{
+		if (ast_addnode(token_lst, ast) == FUNC_ERROR)
+			return (return_ast_del(ast));
+		(*ast)->right = prefix;
+		return (FUNC_SUCCESS);
+	}
+	else if (*prefix != NULL)
+	{
+		*ast = *prefix;
+		return (FUNC_SUCCESS);
+	}
 	return (FUNC_FAIL);
 }
 
-int		parser_cmd_sufix(t_tokenlst **token_lst, t_ast **ast)
+int		parser_cmd_arg(t_tokenlst **token_lst, t_ast **ast,
+				t_ast **last_cmd_arg, t_ast **last_prefix)
 {
+	t_ast	*new_node;
+
+	new_node = NULL;
+	if (ast_addnode(token_lst, &new_node) == FUNC_FAIL)
+		return (FUNC_FAIL);
+	if (*last_cmd_arg == NULL)
+		(*ast)->left = new_node;
+	else
+		*last_cmd_arg = new_node;
+	if (!parser_cmd_sufix(token_lst, ast, last_cmd_arg, last_prefix))
+		return (FUNC_FAIL);
+	return (FUNC_SUCCESS);
+}
+
+int		parser_cmd_sufix(t_tokenlst **token_lst, t_ast **ast,
+				t_ast **last_cmd_arg, t_ast **last_prefix)
+{
+	t_ast	*new_node;
+
+	new_node = NULL;
+	if (TOKEN_TYPE == IO_NUMBER || is_redirect(TOKEN_TYPE))
+	{
+		if (parser_io_redirect(token_lst, &new_node) == FUNC_FAIL)
+			return (FUNC_FAIL);
+		if ((*ast)->right == NULL)
+			(*ast)->right = new_node;
+		else
+			(*last_prefix)->left = new_node;
+		*last_prefix = new_node;
+		if (!parser_cmd_sufix(token_lst, ast, last_cmd_arg, last_prefix))
+			return (FUNC_FAIL);
+	}
+	else if (TOKEN_TYPE == WORD)
+	{
+		if (!parser_cmd_arg(token_lst, ast, last_cmd_arg, last_prefix))
+			return (FUNC_FAIL);
+	}
 	return (FUNC_FAIL);
 }
 
@@ -120,6 +174,8 @@ int		parser_command(t_tokenlst **token_lst, t_ast **ast)
 	{
 		if (parser_cmd_prefix(token_lst, &prefix, &last_prefix) == FUNC_FAIL)
 			return (FUNC_FAIL);
+		if (parser_cmd_word(token_lst, ast, &prefix) == FUNC_FAIL)
+			return (return_ast_del(ast));
 	}
 }
 

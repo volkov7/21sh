@@ -68,6 +68,7 @@ int		parser_io_redirect(t_tokenlst **token_lst, t_ast **ast)
 {
 	t_ast	*filename;
 
+	filename = NULL;
 	if (TOKEN_TYPE == IO_NUMBER && ast_addnode(token_lst, ast) == FUNC_FAIL)
 		return (FUNC_FAIL);
 	if (is_redirect(TOKEN_TYPE) == 0 || ast_addnode(token_lst, ast) == FUNC_FAIL)
@@ -132,7 +133,8 @@ int		parser_cmd_arg(t_tokenlst **token_lst, t_ast **ast,
 	if (*last_cmd_arg == NULL)
 		(*ast)->left = new_node;
 	else
-		*last_cmd_arg = new_node;
+		(*last_cmd_arg)->left = new_node;
+	*last_cmd_arg = new_node;
 	if (!parser_cmd_sufix(token_lst, ast, last_cmd_arg, last_prefix))
 		return (FUNC_FAIL);
 	return (FUNC_SUCCESS);
@@ -264,13 +266,13 @@ int		parser_list(t_tokenlst **token_lst, t_ast **ast)
 {
 	if (parser_and_or(token_lst, ast) == FUNC_SUCCESS)
 	{
-		while (TOKEN_TYPE == SEMICOL)
+		if (TOKEN_TYPE == SEMICOL)
 		{
 			if (ast_addnode(token_lst, ast) == FUNC_FAIL)
 				return(return_ast_del(ast));
 			if (TOKEN_TYPE != NEWLINE && TOKEN_TYPE != END)
 			{
-				if (add_right_node(token_lst, ast, &parser_and_or) == FUNC_FAIL)
+				if (add_right_node(token_lst, ast, &parser_list) == FUNC_FAIL)
 					return (FUNC_FAIL);
 			}
 		}

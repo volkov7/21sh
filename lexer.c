@@ -158,11 +158,26 @@ void			lexer_state_newline(t_token *token)
 	token->tk_type = NEWLINE;
 }
 
+void			lexer_state_and_if(t_token *token)
+{
+	token->tk_type = AND_IF;
+}
+
+void			lexer_state_bg(t_token *token)
+{
+	if (CURRENT_CHAR == '&')
+		lexer_change_state(token, &lexer_state_and_if);
+	else
+		token->tk_type = BG;
+}
+
 void			lexer_state_start(t_token *token)
 {
 	lexer_set_flags(token, CURRENT_CHAR);
 	if (CURRENT_CHAR == '|')
 		lexer_change_state(token, &lexer_state_pipe);
+	else if (CURRENT_CHAR == '&')
+		lexer_change_state(token, &lexer_state_bg);
 	else if (CURRENT_CHAR == '>')
 		lexer_change_state(token, &lexer_state_great);
 	else if (CURRENT_CHAR == '<')
@@ -192,6 +207,7 @@ int				add_token_to_lst(t_tokenlst *tokenlst, t_token *token)
 	char	*str;
 
 	tk_start = token->str_index - token->tk_len;
+	str = NULL;
 	if (tk_start < 0)
 		return (FUNC_ERROR);
 	if (token->tk_type == WORD || token->tk_type == IO_NUMBER)
@@ -246,22 +262,16 @@ int				lexer(char **input, t_tokenlst **token_lst)
 
 int				main(void)
 {
-	// char		*str = "echo Hi, this is a string\\n";
 	char		*str;
 	t_tokenlst	*tokenlst = NULL;
 	t_ast		*ast = NULL;
 
-	str = ft_strdup("	 HOME=/ ls -la 	 || 	 ls 2>file \"Documents\";");
+	str = ft_strdup("ls && ls | echo hello || ls && echo end ; ls word; qwe;");
 	printf("%s\n", str);
 	lexer(&str, &tokenlst);
-	// while (tokenlst)
-	// {
-	// 	printf("flags = %d\n", tokenlst->flags);
-	// 	printf("str = %s\n", tokenlst->str);
-	// 	printf("type = %d\n", tokenlst->type);
-	// 	printf("\n");
-	// 	tokenlst = tokenlst->next;
-	// }
+	print_lex(tokenlst);
 	parser_start(&tokenlst, &ast);
+	printf("\n");
+	print_tree(ast, 0, 0);
 	return (0);
 }

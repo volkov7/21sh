@@ -32,6 +32,7 @@ typedef enum	e_tokens
 	GREAT,
 	LESSAND,
 	GREATAND,
+	BG,
 	PIPE,
 	SEMICOL,
 	NEWLINE,
@@ -75,5 +76,9 @@ void			lexer_change_state(t_token *token, void(*lexer_state)(t_token *token));
 int				parser_cmd_sufix(t_tokenlst **token_lst, t_ast **ast,
 						t_ast **last_cmd_arg, t_ast **last_prefix);
 int				parser_start(t_tokenlst **token_lst, t_ast **ast);
+void			print_tree(t_ast *root, int space, int depth);
+void			print_ast(t_ast *ast);// delete in the future
+char			*get_token_str(t_tokens type);// mb need delete
+void			print_lex(t_tokenlst *token_lst);
 
 #endif

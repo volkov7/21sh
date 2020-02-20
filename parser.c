@@ -233,7 +233,7 @@ int		parser_pipe_sequence(t_tokenlst **token_lst, t_ast **ast)
 }
 
 /*
-**	After parser_pipe_sequence, we can have an AND_IF or OR_IF token
+**	After parser_pipe_sequence, we can have an AND_IF or OR_IF tokens
 **	In that case the current token is adding to the ast
 **	previous ast adding to left node below AND_IF or OR_IF token
 **	calling parser_pipe_sequence and result put in right node below AND_IF or OR_IF token
@@ -288,6 +288,10 @@ int		parser_complete_command(t_tokenlst **token_lst, t_ast **ast)
 		return(return_ast_del(ast));
 	return(FUNC_SUCCESS);
 }
+
+/*
+**	Skip START token
+*/
 
 int		parser_start(t_tokenlst **token_lst, t_ast **ast)
 {

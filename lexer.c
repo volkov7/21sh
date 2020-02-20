@@ -266,7 +266,7 @@ int				main(void)
 	t_tokenlst	*tokenlst = NULL;
 	t_ast		*ast = NULL;
 
-	str = ft_strdup("ls && ls | echo hello || ls && echo end ; ls word; qwe;");
+	str = ft_strdup("ls doesnotexist . 2>&1 >/dev/null");
 	printf("%s\n", str);
 	lexer(&str, &tokenlst);
 	print_lex(tokenlst);

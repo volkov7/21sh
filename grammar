@@ -23,8 +23,8 @@
 %%
 complete_command = list separator_op | list
 list			 = and_or {separator_op and_or}
-and_or			 = pipline {[AND_IF | OR_IF] pipline}
-pipline			 = pipe_sequence
+and_or			 = pipeline {[AND_IF | OR_IF] pipeline}
+pipeline		 = pipe_sequence
 pipe_sequence	 = command {PIPE command}
 command			 = simple_command
 simple_command	 = cmd_prefix [cmd_word [cmd_suffix]] | cmd_name [cmd_suffix]

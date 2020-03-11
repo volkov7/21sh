@@ -2,3 +2,4 @@ ls && ls | echo hello || ls && echo end
 ls && ls | echo hello || ls && echo end ; ls word
 ls && ls | echo hello || ls && echo end ; ls word; qwe
 ls && ls | echo hello || ls && echo end ; ls word; qwe;
+ls doesnotexist . 2>&1 >/dev/null

@@ -29,7 +29,7 @@
 *.dylib
 
 # Executables
-parser
+21sh
 *.exe
 *.out
 *.app

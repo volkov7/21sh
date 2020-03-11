@@ -260,18 +260,51 @@ int				lexer(char **input, t_tokenlst **token_lst)
 	return (FUNC_SUCCESS);
 }
 
-int				main(void)
+t_envlist		*create_env_node(char *value)
+{
+	t_envlist	*fresh;
+
+	fresh = (t_envlist*)malloc(sizeof(t_envlist));
+	if (fresh == NULL)
+		return (NULL);
+	fresh->value = ft_strdup(value);
+	fresh->next = NULL;
+	return (fresh);
+}
+
+void			init_env(char **env, t_envlist **envlst)
+{
+	size_t		i;
+	t_envlist	*tmp;
+
+	i = 0;
+	if ((*envlst = create_env_node(env[0])) == NULL)
+		exit(1);
+	tmp = *envlst;
+	while (env[++i])
+	{
+		tmp->next = create_env_node(env[i]);
+		if (tmp->next == NULL)
+			exit(1);
+		tmp = tmp->next;
+	}
+}
+
+int				main(int argc, char **argv, char **env)
 {
 	char		*str;
 	t_tokenlst	*tokenlst = NULL;
 	t_ast		*ast = NULL;
+	t_envlist	*envlst = NULL;
 
-	str = ft_strdup("ls doesnotexist . 2>&1 >/dev/null");
+	str = ft_strdup("ls -1 hello i am virus; cat hello");
+	init_env(env, &envlst);
 	printf("%s\n", str);
 	lexer(&str, &tokenlst);
 	print_lex(tokenlst);
-	parser_start(&tokenlst, &ast);
 	printf("\n");
+	parser_start(&tokenlst, &ast);
 	print_tree(ast, 0, 0);
+	exec_complete_command(ast, envlst);
 	return (0);
 }

@@ -10,8 +10,11 @@ void	run_pipe(void)
 	pid_t		child 		= -1;
 	char		*cmd1		= NULL;
 	char		*cmd2		= NULL;
+	char		*cmd3		= NULL;
 	char		*args1[3];
 	char		*args2[3];
+	char		*args3[3];
+	char		**jobs[4];
 	int			pdes[2];
 
 	cmd1 = "/bin/ls";
@@ -23,6 +26,16 @@ void	run_pipe(void)
 	args2[0] = cmd2;
 	args2[1] = "-e";
 	args2[2] = NULL;
+
+	cmd3 = "usr/bin/grep";
+	args3[0] = cmd3;
+	args3[1] = "21";
+	args3[2] = NULL;
+
+	jobs[0] = args1;
+	jobs[1] = args2;
+	jobs[2] = args3;
+	jobs[3] = NULL;
 
 	pipe(pdes);
 

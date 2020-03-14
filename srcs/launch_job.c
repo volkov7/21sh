@@ -1,4 +1,5 @@
 #include "lexer.h"
+#include <stdio.h>
 
 int		shell_err(char *error)
 {
@@ -178,6 +179,16 @@ void	launch_child_proc(t_proc *proc, int fds[3], int pipe[2], t_envlist *envlst)
 	exec_proc(proc);
 }
 
+int		handle_exit_status(int exit_status)
+{
+	static int	last_exit_status;
+
+	if (exit_status == 1337)
+		return (last_exit_status);
+	last_exit_status = exit_status;
+	return (last_exit_status);
+}
+
 void	setup_fork(t_proc *proc, int fds[3], int pipe[2], t_envlist *envlst)
 {
 	int		status;
@@ -193,8 +204,7 @@ void	setup_fork(t_proc *proc, int fds[3], int pipe[2], t_envlist *envlst)
 	{
 		// Parent
 		wait(&status);
-		proc->exit_status = WEXITSTATUS(status);
-		printf("exit status = %d\n", proc->exit_status);
+		proc->exit_status = handle_exit_status(WEXITSTATUS(status));
 	}
 }
 
@@ -303,6 +313,34 @@ int		find_binary(char *filename, char **binary, t_envlist *envlst)
 	return (FUNC_SUCCESS);
 }
 
+void	handle_andor(t_job **job)
+{
+	if ((*job)->andor == ANDOR_OR)
+	{
+		if (handle_exit_status(GET_EXIT_STATUS) != 0)
+			*job = (*job)->next;
+		else
+		{
+			while ((*job)->andor == ANDOR_OR)
+				*job = (*job)->next;
+			*job = (*job)->next;
+		}
+	}
+	else if ((*job)->andor == ANDOR_AND)
+	{
+		if (handle_exit_status(GET_EXIT_STATUS) == 0)
+			*job = (*job)->next;
+		else
+		{
+			while ((*job)->andor == ANDOR_AND)
+				*job = (*job)->next;
+			*job = (*job)->next;
+		}
+	}
+	else
+		*job = (*job)->next;
+}
+
 int		go_fork_job(t_job *job, int fds[3], int pipe[2], t_envlist *envlst)
 {
 	pid_t	pid;
@@ -316,6 +354,7 @@ int		go_fork_job(t_job *job, int fds[3], int pipe[2], t_envlist *envlst)
 		proc = tmp->processes;
 		while (proc != NULL)
 		{
+			// printf("exit status = %d\n", handle_exit_status(1337));
 			node = proc->node;
 			if (prepare_argv_proc(&(proc->argv), node, proc) == FUNC_ERROR)
 				return (FUNC_ERROR);
@@ -326,7 +365,7 @@ int		go_fork_job(t_job *job, int fds[3], int pipe[2], t_envlist *envlst)
 			setup_fork(proc, fds, pipe, envlst);
 			proc = proc->next;
 		}
-		tmp = tmp->next;
+		handle_andor(&tmp);
 	}
 	return (FUNC_SUCCESS);
 }

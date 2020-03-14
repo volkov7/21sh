@@ -290,21 +290,54 @@ void			init_env(char **env, t_envlist **envlst)
 	}
 }
 
+void			clear_tokenlst(t_tokenlst **tokenlst)
+{
+	t_tokenlst	*del;
+
+	while (*tokenlst != NULL)
+	{
+		del = *tokenlst;
+		*tokenlst = (*tokenlst)->next;
+		free(del);
+	}
+}
+
+void			delete_tree(t_ast **ast)
+{
+	if (*ast == NULL)
+		return ;
+	delete_tree(&(*ast)->left);
+	delete_tree(&(*ast)->right);
+	free(*ast);
+}
+
 int				main(int argc, char **argv, char **env)
 {
-	char		*str;
+	// -----getline--------
+	char		*line = NULL;
+	size_t		linecap = 0;
+	ssize_t		linelen;
+	// -----getline--------
 	t_tokenlst	*tokenlst = NULL;
 	t_ast		*ast = NULL;
 	t_envlist	*envlst = NULL;
 
-	str = ft_strdup("ls -1 hello i am virus; cat hello");
 	init_env(env, &envlst);
-	printf("%s\n", str);
-	lexer(&str, &tokenlst);
-	print_lex(tokenlst);
-	printf("\n");
-	parser_start(&tokenlst, &ast);
-	print_tree(ast, 0, 0);
-	exec_complete_command(ast, envlst);
+	while ((linelen = getline(&line, &linecap, stdin)) > 0)
+	{
+		line[linelen - 1] = '\0';
+		ast = NULL;
+		tokenlst = NULL;
+		lexer(&line, &tokenlst);
+		// print_lex(tokenlst);
+		printf("\n");
+		parser_start(&tokenlst, &ast);
+		// print_tree(ast, 0, 0);
+		exec_complete_command(ast, envlst);
+		clear_tokenlst(&tokenlst);
+		delete_tree(&ast);
+		free(line);
+		line = NULL;
+	}
 	return (0);
 }

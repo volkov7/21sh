@@ -124,6 +124,27 @@ int		exec_list(t_ast *ast, t_job **jobs)
 	return (FUNC_SUCCESS);
 }
 
+void	clear_jobs(t_job **jobs)
+{
+	t_proc	*del;
+	t_proc	*del_proc;
+	t_job	*tmp;
+
+	while (*jobs != NULL)
+	{
+		tmp = *jobs;
+		del = tmp->processes;
+		while (del != NULL)
+		{
+			del_proc = del;
+			del = del->next;
+			free(del_proc);
+		}
+		*jobs = (*jobs)->next;
+		free(tmp);
+	}
+}
+
 int		exec_complete_command(t_ast *ast, t_envlist *envlst)
 {
 	t_job	*jobs;
@@ -156,5 +177,6 @@ int		exec_complete_command(t_ast *ast, t_envlist *envlst)
 	write(1, "\n", 1);
 	// ---------------------------------------------
 	launch_job(jobs, envlst);
+	clear_jobs(&jobs);
 	return (FUNC_SUCCESS);
 }

@@ -112,6 +112,21 @@ int		handle_fds(int fds[3], int pipe[2])
 	{
 		if (dup2(fds[0], STDIN_FILENO) == -1)
 			return (FUNC_ERROR);
+		close(fds[0]);
+	}
+	else if (pipe[0] != UNINIT)
+		close(pipe[0]);
+	if (fds[1] != STDOUT_FILENO)
+	{
+		if (dup2(fds[1], STDOUT_FILENO) == -1)
+			return (FUNC_ERROR);
+		close(fds[1]);
+	}
+	if (fds[2] != STDERR_FILENO)
+	{
+		if (dup2(fds[1], STDERR_FILENO) == -1)
+			return (FUNC_ERROR);
+		close(fds[2]);
 	}
 	return (FUNC_SUCCESS);
 }
@@ -168,8 +183,8 @@ void	exec_proc(t_proc *proc)
 
 void	launch_child_proc(t_proc *proc, int fds[3], int pipe[2], t_envlist *envlst)
 {
-	// if (handle_fds(fds, pipe) == FUNC_ERROR)
-	// 	exit(1);
+	if (handle_fds(fds, pipe) == FUNC_ERROR)
+		exit(1);
 	proc->env = env_lst_to_arr(envlst);
 	if (proc->env == NULL)
 	{
@@ -341,6 +356,21 @@ void	handle_andor(t_job **job)
 		*job = (*job)->next;
 }
 
+void	clean_after_fork(t_proc *proc, int fds[3], int pipes[2])
+{
+	if (fds[0] != STDIN_FILENO && fds[0] != UNINIT)
+		close(fds[0]);
+	if (fds[1] != STDOUT_FILENO && fds[1] != UNINIT)
+		close(fds[1]);
+	fds[0] = pipes[0];
+	if (proc->binary != NULL)
+		ft_strdel(&proc->binary);
+	if (proc->argv != NULL)
+		ft_strarrdel(&proc->argv);
+	if (proc->env != NULL)
+		ft_strarrdel(&proc->env);
+}
+
 int		go_fork_job(t_job *job, int fds[3], int pipe[2], t_envlist *envlst)
 {
 	pid_t	pid;
@@ -360,9 +390,11 @@ int		go_fork_job(t_job *job, int fds[3], int pipe[2], t_envlist *envlst)
 				return (FUNC_ERROR);
 			if (find_binary(proc->argv[0], &proc->binary, envlst) == FUNC_FAIL)
 				write(2, "command not found\n", 18);
+			setup_stdout(proc, fds, pipe);
 			pid = fork();
 			proc->pid = pid;
 			setup_fork(proc, fds, pipe, envlst);
+			clean_after_fork(proc, fds, pipe);
 			proc = proc->next;
 		}
 		handle_andor(&tmp);
@@ -378,5 +410,7 @@ void	launch_job(t_job *job, t_envlist *envlst)
 
 	fds[0] = STDIN_FILENO;
 	fds[2] = STDERR_FILENO;
+	pipe[0] = UNINIT;
+	pipe[1] = UNINIT;
 	ret = go_fork_job(job, fds, pipe, envlst);
 }

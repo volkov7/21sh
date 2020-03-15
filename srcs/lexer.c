@@ -298,6 +298,7 @@ void			clear_tokenlst(t_tokenlst **tokenlst)
 	{
 		del = *tokenlst;
 		*tokenlst = (*tokenlst)->next;
+		ft_strdel(&del->str);
 		free(del);
 	}
 }
@@ -308,6 +309,7 @@ void			delete_tree(t_ast **ast)
 		return ;
 	delete_tree(&(*ast)->left);
 	delete_tree(&(*ast)->right);
+	ft_strdel(&(*ast)->str);
 	free(*ast);
 }
 

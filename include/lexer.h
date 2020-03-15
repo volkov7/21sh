@@ -9,6 +9,7 @@
 # define FUNC_ERROR			-1
 # define FUNC_FAIL			0
 # define FUNC_SUCCESS		1
+# define UNINIT				-1
 # define TOKEN_CHAR			token.str[token.str_index]
 # define CURRENT_CHAR		token->str[token->str_index]
 # define TOKEN_TYPE			(*token_lst)->type

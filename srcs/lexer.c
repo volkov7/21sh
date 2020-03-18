@@ -30,7 +30,7 @@ int				tokenlst_addback(t_tokenlst **token_lst, int flags, char *str, t_tokens t
 
 int				is_spec(char c)
 {
-	if (c != '\0' && ft_strchr("-~$/\\'\"", c) != NULL)
+	if (c != '\0' && ft_strchr("-~$?/\\'\"", c) != NULL)
 		return (1);
 	return (0);
 }
@@ -331,7 +331,7 @@ int				main(int argc, char **argv, char **env)
 		ast = NULL;
 		tokenlst = NULL;
 		lexer(&line, &tokenlst);
-		// print_lex(tokenlst);
+		print_lex(tokenlst);
 		printf("\n");
 		parser_start(&tokenlst, &ast);
 		// print_tree(ast, 0, 0);

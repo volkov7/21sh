@@ -4,6 +4,10 @@
 # include <stdlib.h>
 # include <dirent.h>
 # include <sys/stat.h>
+# include <sys/types.h>
+# include <fcntl.h>
+# include <pwd.h>
+# include <uuid/uuid.h>
 # include "../libft/libft.h"
 
 # define FUNC_ERROR			-1
@@ -17,6 +21,10 @@
 # define QUOTE_STATE		(1 << 1)
 # define DQUOTE_STATE		(1 << 2)
 # define GET_EXIT_STATUS	1337
+# define OPEN_FLAGS			O_RDONLY | O_CREAT | O_NONBLOCK
+# define GREAT_OPEN_FLAGS	O_WRONLY | O_CREAT | O_TRUNC
+# define DGREAT_OPEN_FLAGS	O_WRONLY | O_CREAT | O_APPEND
+# define PERMISSIONS		S_IRUSR | S_IWUSR | S_IRGRP | S_IROTH
 
 /*
 **----------------------------------environment--------------------------------
@@ -127,5 +135,8 @@ char			*get_token_str(t_tokens type);// mb need delete
 void			print_lex(t_tokenlst *token_lst);
 int				exec_complete_command(t_ast *ast, t_envlist *envlst);
 void			launch_job(t_job *job, t_envlist *envlst);
+int				is_redirect(t_tokens type);
+int				handle_exit_status(int exit_status);
+char			*get_env_value(char *var, t_envlist *envlst);
 
 #endif

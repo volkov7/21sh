@@ -37,7 +37,7 @@ t_proc	*create_proc(void)
 	new->binary = NULL;
 	new->argv = NULL;
 	new->exit_status = 0;
-	new->redir_and_assign = NULL;
+	new->redir = NULL;
 	new->node = NULL;
 	new->next = NULL;
 	return (new);

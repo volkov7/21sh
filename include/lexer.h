@@ -17,6 +17,8 @@
 # define FUNC_SUCCESS		1
 # define UNINIT				-1
 # define WITE_ANY			-1
+# define EXIT_NOT_FOUND		127
+# define EXIT_NOT_EXECUTE	126
 # define TOKEN_CHAR			token.str[token.str_index]
 # define CURRENT_CHAR		token->str[token->str_index]
 # define TOKEN_TYPE			(*token_lst)->type
@@ -112,7 +114,7 @@ typedef struct	s_proc
 	char				**argv;
 	char				*binary;
 	int					exit_status;
-	t_ast				*redir_and_assign;
+	t_ast				*redir;
 	t_ast				*node;
 	struct s_proc		*next;
 }				t_proc;

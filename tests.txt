@@ -1,3 +1,5 @@
+1>file.txt
+te"\$$\stt\"
 ls || cat hello || cat hello && cat print
 ls || cat hello || cat hello || cat a || cat b && cat print
 cat noexits && echo first && echo second && echo a && echo b || ls

@@ -283,6 +283,80 @@ int		search_spec(t_ast *node, t_envlist *envlst)
 	return (FUNC_SUCCESS);
 }
 
+void	remove_quote(char **str, size_t *i, size_t *rep)
+{
+	(*i)++;
+	while ((*str)[*i] != '\0' && (*str)[*i] != '\'')
+	{
+		(*str)[*rep] = (*str)[*i];
+		(*i)++;
+		(*rep)++;
+	}
+	if ((*str)[*i] == '\'')
+		(*i)++;
+}
+
+void	remove_backslash(char **str, size_t *i, size_t *rep)
+{
+	(*i)++;
+	if ((*str)[*i] != '\0')
+	{
+		(*str)[*rep] = (*str)[*i];
+		(*i)++;
+		(*rep)++;
+	}
+}
+
+int		dquote_spec(char c)
+{
+	if (c == '$' || c == '`' || c == '\\' || c == '\n' || c == '"')
+		return (1);
+	return (0);
+}
+
+void	remove_dquote(char **str, size_t *i, size_t *rep)
+{
+	(*i)++;
+	while ((*str)[*i] != '\0' && (*str)[*i] != '"')
+	{
+		if ((*str)[*i] == '\\' && dquote_spec((*str)[*i + 1]) == 1)
+			remove_backslash(str, i, rep);
+		else
+		{
+			(*str)[*rep] = (*str)[*i];
+			(*i)++;
+			(*rep)++;
+		}
+	}
+	if ((*str)[*i] == '"')
+		(*i)++;
+}
+
+void	quote_removal(char **str)
+{
+	size_t	i;
+	size_t	rep;
+
+	i = 0;
+	rep = 0;
+	while ((*str)[i] != '\0')
+	{
+		if ((*str)[i] == '\\')
+			remove_backslash(str, &i, &rep);
+		else if ((*str)[i] == '\'')
+			remove_quote(str, &i, &rep);
+		else if ((*str)[i] == '"')
+			remove_dquote(str, &i, &rep);
+		else
+		{
+			(*str)[rep] = (*str)[i];
+			i++;
+			rep++;
+		}
+	}
+	ft_bzero(&((*str)[rep]), i - rep);
+}
+
 int		handle_expansions(t_ast *node, t_envlist *envlst)
 {
 	if (node == NULL)
@@ -296,6 +370,8 @@ int		handle_expansions(t_ast *node, t_envlist *envlst)
 		if (search_spec(node, envlst) == FUNC_ERROR)
 			return (FUNC_ERROR);
 	}
+	if (node->type == WORD)
+		quote_removal(&node->str);
 	return (FUNC_SUCCESS);
 }
 
@@ -304,9 +380,9 @@ int		prepare_argv_proc(char ***argv, t_ast *node, t_proc *proc, t_envlist *envls
 	if (handle_expansions(node, envlst) == FUNC_ERROR)
 		return (FUNC_ERROR);
 	if (node->type == WORD)
-		proc->redir_and_assign = node->right;
+		proc->redir = node->right;
 	else
-		proc->redir_and_assign = node;
+		proc->redir = node;
 	*argv = create_proc_argv(node);
 	// print_tree(node, 0, 0);
 	if (*argv == NULL)
@@ -554,9 +630,9 @@ int		handle_redirs(t_ast *redir)
 
 void	launch_child_proc(t_proc *proc, int fds[3], int pipe[2], t_envlist *envlst)
 {
-	if (create_file(proc->redir_and_assign) == FUNC_ERROR
+	if (create_file(proc->redir) == FUNC_ERROR
 	|| handle_fds(fds, pipe) == FUNC_ERROR
-	|| handle_redirs(proc->redir_and_assign) == FUNC_ERROR)
+	|| handle_redirs(proc->redir) == FUNC_ERROR)
 		exit(EXIT_FAILURE);
 	proc->env = env_lst_to_arr(envlst);
 	if (proc->env == NULL)
@@ -686,6 +762,33 @@ int		check_paths(char **paths, char *filename, char **binary)
 	return (FUNC_FAIL);
 }
 
+int		validate_binary(char *binary)
+{
+	struct stat	st;
+
+	if (access(binary, F_OK) == -1)
+	{
+		handle_exit_status(EXIT_NOT_FOUND);
+		return (shell_err("no such file or directory:\n"));//need print name file
+	}
+	if (access(binary, X_OK) == -1)
+	{
+		handle_exit_status(EXIT_NOT_EXECUTE);
+		return (shell_err("permission denied\n"));//need print name file
+	}
+	if (stat(binary, &st) == -1)
+	{
+		handle_exit_status(EXIT_NOT_EXECUTE);
+		return (shell_err("could not get stat info of\n"));//need print name file
+	}
+	if (S_ISDIR(st.st_mode))
+	{
+		handle_exit_status(EXIT_NOT_EXECUTE);
+		return (shell_err("is a directory\n"));//need print name file
+	}
+	return (FUNC_SUCCESS);
+}
+
 int		find_binary(char *filename, char **binary, t_envlist *envlst)
 {
 	char	**paths;
@@ -699,6 +802,28 @@ int		find_binary(char *filename, char **binary, t_envlist *envlst)
 	if (*binary == NULL)
 		return (FUNC_FAIL);
 	return (FUNC_SUCCESS);
+}
+
+void	check_binary(char *filename, char **binary, t_envlist *envlst)
+{
+	if (ft_strchr(filename, '/') == NULL)
+	{
+		if (find_binary(filename, binary, envlst) == FUNC_SUCCESS)
+		{
+			if (validate_binary(*binary) == FUNC_ERROR)
+				ft_strdel(binary);
+		}
+		else
+		{
+			handle_exit_status(EXIT_NOT_FOUND);
+			write(2, "command not found:\n", 19);//print filename
+		}
+	}
+	else
+	{
+		if (validate_binary(filename) == FUNC_SUCCESS)
+			*binary = ft_strdup(filename);
+	}
 }
 
 void	handle_andor(t_job **job)
@@ -802,8 +927,7 @@ int		go_fork_job(t_job *job, int fds[3], int pipe[2], t_envlist *envlst)
 		node = proc->node;
 		if (prepare_argv_proc(&(proc->argv), node, proc, envlst) == FUNC_ERROR)
 			return (FUNC_ERROR);
-		if (find_binary(proc->argv[0], &proc->binary, envlst) == FUNC_FAIL)
-			write(2, "command not found\n", 18);
+		check_binary(proc->argv[0], &proc->binary, envlst);
 		setup_stdout(proc, fds, pipe);
 		pid = fork();
 		proc->pid = pid;

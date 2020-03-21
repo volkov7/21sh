@@ -347,7 +347,7 @@ int		handle_fds(int fds[3], int pipe[2])
 	}
 	if (fds[2] != STDERR_FILENO)
 	{
-		if (dup2(fds[1], STDERR_FILENO) == -1)
+		if (dup2(fds[2], STDERR_FILENO) == -1)
 			return (FUNC_ERROR);
 		close(fds[2]);
 	}
@@ -455,7 +455,7 @@ int		create_file(t_ast *redir)
 	return (FUNC_SUCCESS);
 }
 
-void	initial_set_fd(t_ast *redir, char **file, int *stream_fd)
+void	initial_set_fd(t_ast *redir, char **file, int *stream_fd, int flag)
 {
 	if (redir->right->type == IO_NUMBER)
 	{
@@ -465,23 +465,61 @@ void	initial_set_fd(t_ast *redir, char **file, int *stream_fd)
 	else
 	{
 		*file = redir->right->str;
-		*stream_fd = STDOUT_FILENO;
+		*stream_fd = (flag ? STDOUT_FILENO : STDIN_FILENO);
 	}
 }
 
-int		redir_output(t_ast *redir)
+int		create_heredoc_fd(char *str)
+{
+	int		pipes[2];
+
+	handle_exit_status(EXIT_FAILURE);
+	if (pipe(pipes) == -1)
+		return (shell_err("unable to create pipe\n"));
+	if (write(pipes[1], str, ft_strlen(str)) == -1)
+	{
+		close(pipes[0]);
+		close(pipes[1]);
+		return (FUNC_ERROR);
+	}
+	close(pipes[1]);
+	handle_exit_status(EXIT_SUCCESS);
+	return (pipes[0]);
+}
+
+int		redirect_input(t_ast *redir)
 {
 	char	*file;
 	int		stream_fd;
 	int		fd;
 
-	initial_set_fd(redir, &file, &stream_fd);
+	initial_set_fd(redir, &file, &stream_fd, 0);
+	if (redir->type == LESS)
+		fd = open(file, O_RDONLY);
+	else if (redir->type == DLESS)
+		fd = create_heredoc_fd(file);
+	if (fd == -1)
+		return (shell_err("no permissions/no such file or directory\n"));// need print which file can't be opened
+	if (dup2(fd, stream_fd) == -1)
+		return (shell_err("failed to duplicate file descriptor\n"));
+	if (redir->type == LESS || redir->type == DLESS)
+		close(fd);
+	return (FUNC_SUCCESS);
+}
+
+int		redirect_output(t_ast *redir)
+{
+	char	*file;
+	int		stream_fd;
+	int		fd;
+
+	initial_set_fd(redir, &file, &stream_fd, 1);
 	if (redir->type == GREAT)
 		fd = open(file, GREAT_OPEN_FLAGS, PERMISSIONS);
 	else if (redir->type == DGREAT)
 		fd = open(file, DGREAT_OPEN_FLAGS, PERMISSIONS);
 	if (fd == -1)
-		return (shell_err("no perm / no such file or directory\n"));
+		return (shell_err("no permissions/no such file or directory\n"));
 	if (dup2(fd, stream_fd) == -1)
 		return (shell_err("failed to duplicate file descriptor\n"));
 	if (redir->type == GREAT || redir->type == DGREAT)
@@ -494,7 +532,9 @@ int		redirect(t_ast *node)
 	if (node == NULL)
 		return (FUNC_FAIL);
 	if (node->type == GREAT || node->type == DGREAT || node->type == GREATAND)
-		return (redir_output(node));
+		return (redirect_output(node));
+	if (node->type == LESS || node->type == DLESS || node->type == LESSAND)
+		return (redirect_input(node));
 	return (FUNC_SUCCESS);
 }
 
@@ -531,7 +571,7 @@ int		handle_exit_status(int exit_status)
 {
 	static int	last_exit_status;
 
-	if (exit_status == 1337)
+	if (exit_status == GET_EXIT_STATUS)
 		return (last_exit_status);
 	last_exit_status = exit_status;
 	return (last_exit_status);
@@ -548,12 +588,12 @@ void	setup_fork(t_proc *proc, int fds[3], int pipe[2], t_envlist *envlst)
 	}
 	else if (proc->pid == 0)
 		launch_child_proc(proc, fds, pipe, envlst);
-	else
-	{
-		// Parent
-		wait(&status);
-		proc->exit_status = handle_exit_status(WEXITSTATUS(status));
-	}
+	// else
+	// {
+	// 	// Parent
+	// 	wait(&status);
+	// 	proc->exit_status = handle_exit_status(WEXITSTATUS(status));
+	// }
 }
 
 char	*get_env_value(char *var, t_envlist *envlst)
@@ -704,33 +744,72 @@ void	clean_after_fork(t_proc *proc, int fds[3], int pipes[2])
 		ft_strarrdel(&proc->env);
 }
 
+int		set_status(t_proc **proc, int status)
+{
+	// printf("before exit status = %d\n", handle_exit_status(GET_EXIT_STATUS));
+	(*proc)->exit_status = handle_exit_status(WEXITSTATUS(status));
+	// printf("after exit status = %d\n", handle_exit_status(GET_EXIT_STATUS));
+	// if (WIFEXITED((*proc)->exit_status))
+	kill((*proc)->pid, SIGINT);
+	return (FUNC_SUCCESS);
+}
+
+int		found_process(pid_t pid, int status, t_job **jobs)
+{
+	t_job	*tmp;
+	t_proc	*proc;
+
+	if (pid > 0)
+	{
+		tmp = *jobs;
+		while (tmp != NULL)
+		{
+			proc = tmp->processes;
+			while (proc != NULL)
+			{
+				if (proc->pid == pid)
+					return (set_status(&proc, status));
+				proc = proc->next;
+			}
+			tmp = tmp->next;
+		}
+	}
+	return (FUNC_FAIL);
+}
+
+void	jobs_get_status(t_job **jobs)
+{
+	pid_t	pid;
+	int		status;
+	int		opt;
+
+	// opt = WUNTRACED | WNOHANG;
+	opt = 0;
+	pid = waitpid(WAIT_ANY, &status, opt);
+	while (found_process(pid, status, jobs) == FUNC_SUCCESS)
+		pid = waitpid(WAIT_ANY, &status, opt);
+}
+
 int		go_fork_job(t_job *job, int fds[3], int pipe[2], t_envlist *envlst)
 {
 	pid_t	pid;
 	t_proc	*proc;
 	t_ast	*node;
-	t_job	*tmp;
 
-	tmp = job;
-	while (tmp != NULL)
+	proc = job->processes;
+	while (proc != NULL)
 	{
-		proc = tmp->processes;
-		while (proc != NULL)
-		{
-			// printf("exit status = %d\n", handle_exit_status(1337));
-			node = proc->node;
-			if (prepare_argv_proc(&(proc->argv), node, proc, envlst) == FUNC_ERROR)
-				return (FUNC_ERROR);
-			if (find_binary(proc->argv[0], &proc->binary, envlst) == FUNC_FAIL)
-				write(2, "command not found\n", 18);
-			setup_stdout(proc, fds, pipe);
-			pid = fork();
-			proc->pid = pid;
-			setup_fork(proc, fds, pipe, envlst);
-			clean_after_fork(proc, fds, pipe);
-			proc = proc->next;
-		}
-		handle_andor(&tmp);
+		node = proc->node;
+		if (prepare_argv_proc(&(proc->argv), node, proc, envlst) == FUNC_ERROR)
+			return (FUNC_ERROR);
+		if (find_binary(proc->argv[0], &proc->binary, envlst) == FUNC_FAIL)
+			write(2, "command not found\n", 18);
+		setup_stdout(proc, fds, pipe);
+		pid = fork();
+		proc->pid = pid;
+		setup_fork(proc, fds, pipe, envlst);
+		clean_after_fork(proc, fds, pipe);
+		proc = proc->next;
 	}
 	return (FUNC_SUCCESS);
 }
@@ -740,10 +819,17 @@ void	launch_job(t_job *job, t_envlist *envlst)
 	int		fds[3];
 	int		pipe[2];
 	int		ret;
+	t_job	*tmp;
 
-	fds[0] = STDIN_FILENO;
-	fds[2] = STDERR_FILENO;
-	pipe[0] = UNINIT;
-	pipe[1] = UNINIT;
-	ret = go_fork_job(job, fds, pipe, envlst);
+	tmp = job;
+	while (tmp != NULL)
+	{
+		fds[0] = STDIN_FILENO;
+		fds[2] = STDERR_FILENO;
+		pipe[0] = UNINIT;
+		pipe[1] = UNINIT;
+		ret = go_fork_job(tmp, fds, pipe, envlst);
+		jobs_get_status(&job);
+		handle_andor(&tmp);
+	}
 }

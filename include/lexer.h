@@ -1,12 +1,14 @@
 #ifndef LEXER_H
 # define LEXER_H
 
+# include <pwd.h>
+# include <fcntl.h>
 # include <stdlib.h>
 # include <dirent.h>
+# include <signal.h>
+# include <sys/wait.h>
 # include <sys/stat.h>
 # include <sys/types.h>
-# include <fcntl.h>
-# include <pwd.h>
 # include <uuid/uuid.h>
 # include "../libft/libft.h"
 
@@ -14,6 +16,7 @@
 # define FUNC_FAIL			0
 # define FUNC_SUCCESS		1
 # define UNINIT				-1
+# define WITE_ANY			-1
 # define TOKEN_CHAR			token.str[token.str_index]
 # define CURRENT_CHAR		token->str[token->str_index]
 # define TOKEN_TYPE			(*token_lst)->type

@@ -6,3 +6,5 @@ ls && ls | echo hello || ls && echo end ; ls word
 ls && ls | echo hello || ls && echo end ; ls word; qwe
 ls && ls | echo hello || ls && echo end ; ls word; qwe;
 ls doesnotexist . 2>&1 >/dev/null
+mkdir test;cd test;ls -a;ls | cat | wc -c > ifif;cat ifif
+base64 /dev/urandom | head -c 1000 | grep 42 | wc -l

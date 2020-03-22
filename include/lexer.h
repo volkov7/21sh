@@ -135,9 +135,9 @@ void			lexer_change_state(t_token *token, void(*lexer_state)(t_token *token));
 int				parser_cmd_sufix(t_tokenlst **token_lst, t_ast **ast,
 						t_ast **last_cmd_arg, t_ast **last_prefix);
 int				parser_start(t_tokenlst **token_lst, t_ast **ast);
-void			print_tree(t_ast *ast, int space, int depth);
+void			print_tree(t_ast *ast, int space, int depth);// debugging
 char			*get_token_str(t_tokens type);// mb need delete
-void			print_lex(t_tokenlst *token_lst);
+void			print_lex(t_tokenlst *token_lst);// debugging
 int				exec_complete_command(t_ast *ast, t_envlist *envlst);
 void			launch_job(t_job *job, t_envlist *envlst);
 int				is_redirect(t_tokens type);

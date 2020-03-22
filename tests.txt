@@ -1,3 +1,8 @@
+>fifi | cat -e
+cat -e | >fifi
+>fifi
+cat -e | cat > fifi
+pwd >> file.txt | cat -e ; cat file.txt; rm file.txt
 1>file.txt
 te"\$$\stt\"
 ls || cat hello || cat hello && cat print

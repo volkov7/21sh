@@ -31,7 +31,14 @@ char	**malloc_argv(size_t numb_args)
 	if (numb_args > 0)
 		argv = (char**)malloc(sizeof(char*) * numb_args + 1);
 	else
-		argv = (char**)malloc(sizeof(char*) * 2);// Need think
+	{
+		if ((argv = (char**)malloc(sizeof(char*) * 2)) == NULL)
+			return (NULL);
+		argv[0] = ft_strdup("cat");
+		argv[1] = NULL;
+		return (argv);
+		
+	}
 	argv[numb_args] = NULL;
 	return (argv);	
 }
@@ -563,6 +570,39 @@ int		create_heredoc_fd(char *str)
 	return (pipes[0]);
 }
 
+int		check_is_fd_digit(char *word_fd)
+{
+	size_t	i;
+
+	i = 0;
+	while (word_fd[i] != '\0')
+	{
+		if (ft_isdigit(word_fd[i]) == 0)
+			return (FUNC_FAIL);
+		i++;
+	}
+	return (FUNC_SUCCESS);
+}
+
+int		close_fd(int fd)
+{
+	if (close(fd) == -1)
+		return (FUNC_ERROR);
+	return (FUNC_SUCCESS);
+}
+
+int		set_fd(int *fd, char *word_fd)
+{
+	struct stat	st;
+
+	if (check_is_fd_digit(word_fd) == FUNC_FAIL)
+		return (shell_err("bad redirect\n"));//need print fd name
+	*fd = ft_atoi(word_fd);
+	if (fstat(*fd, &st) == -1)
+		return (shell_err("Bad file descriptor\n"));//need print fd name
+	return (FUNC_SUCCESS);
+}
+
 int		redirect_input(t_ast *redir)
 {
 	char	*file;
@@ -574,8 +614,12 @@ int		redirect_input(t_ast *redir)
 		fd = open(file, O_RDONLY);
 	else if (redir->type == DLESS)
 		fd = create_heredoc_fd(file);
+	else if (ft_strcmp(file, "-") == 0)
+		return (close_fd(stream_fd));
+	else if (set_fd(&fd, file) == FUNC_ERROR)
+		return (FUNC_ERROR);
 	if (fd == -1)
-		return (shell_err("no permissions/no such file or directory\n"));// need print which file can't be opened
+		return (shell_err("no such file or directory\n"));// need print which file can't be opened
 	if (dup2(fd, stream_fd) == -1)
 		return (shell_err("failed to duplicate file descriptor\n"));
 	if (redir->type == LESS || redir->type == DLESS)
@@ -594,8 +638,12 @@ int		redirect_output(t_ast *redir)
 		fd = open(file, GREAT_OPEN_FLAGS, PERMISSIONS);
 	else if (redir->type == DGREAT)
 		fd = open(file, DGREAT_OPEN_FLAGS, PERMISSIONS);
+	else if (ft_strcmp(file, "-") == 0)
+		return (close_fd(stream_fd));
+	else if (set_fd(&fd, file) == FUNC_ERROR)
+		return (FUNC_ERROR);
 	if (fd == -1)
-		return (shell_err("no permissions/no such file or directory\n"));
+		return (shell_err("no such file or directory\n"));
 	if (dup2(fd, stream_fd) == -1)
 		return (shell_err("failed to duplicate file descriptor\n"));
 	if (redir->type == GREAT || redir->type == DGREAT)
@@ -694,7 +742,7 @@ int		get_paths(char ***paths, t_envlist *envlst)
 
 	path_value = get_env_value("PATH", envlst);
 	if (path_value == NULL || *path_value == '\0')
-		return (FUNC_FAIL);
+		return (FUNC_ERROR);
 	*paths = ft_strsplit(path_value, ':');
 	if (paths == NULL)
 		return (shell_err("failed to allocate enough memory\n"));

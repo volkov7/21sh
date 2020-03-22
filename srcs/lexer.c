@@ -277,16 +277,24 @@ void			init_env(char **env, t_envlist **envlst)
 	size_t		i;
 	t_envlist	*tmp;
 
-	i = 0;
-	if ((*envlst = create_env_node(env[0])) == NULL)
-		exit(1);
-	tmp = *envlst;
-	while (env[++i])
+	if (env && env[0] != NULL)
 	{
-		tmp->next = create_env_node(env[i]);
-		if (tmp->next == NULL)
+		i = 0;
+		if ((*envlst = create_env_node(env[0])) == NULL)
 			exit(1);
-		tmp = tmp->next;
+		tmp = *envlst;
+		while (env[++i])
+		{
+			tmp->next = create_env_node(env[i]);
+			if (tmp->next == NULL)
+				exit(1);
+			tmp = tmp->next;
+		}
+	}
+	else
+	{
+		if ((*envlst = create_env_node("\0")) == NULL)
+			exit(1);
 	}
 }
 

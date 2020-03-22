@@ -25,6 +25,9 @@
 # define HAS_SPECIAL		(1 << 0)
 # define QUOTE_STATE		(1 << 1)
 # define DQUOTE_STATE		(1 << 2)
+# define ECHO_OPT_n			(1 << 0)
+# define ECHO_OPT_e			(1 << 1)
+# define ECHO_OPT_E			(1 << 2)
 # define GET_EXIT_STATUS	1337
 # define OPEN_FLAGS			O_RDONLY | O_CREAT | O_NONBLOCK
 # define GREAT_OPEN_FLAGS	O_WRONLY | O_CREAT | O_TRUNC

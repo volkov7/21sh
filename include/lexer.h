@@ -113,6 +113,7 @@ typedef struct	s_proc
 	char				**env;
 	char				**argv;
 	char				*binary;
+	int					is_builtin;
 	int					exit_status;
 	t_ast				*redir;
 	t_ast				*node;

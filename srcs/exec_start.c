@@ -36,6 +36,7 @@ t_proc	*create_proc(void)
 	new->env = NULL;
 	new->binary = NULL;
 	new->argv = NULL;
+	new->is_builtin = 0;
 	new->exit_status = 0;
 	new->redir = NULL;
 	new->node = NULL;

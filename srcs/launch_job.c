@@ -480,11 +480,61 @@ char	**env_lst_to_arr(t_envlist *envlst)
 	return (env);
 }
 
+int		check_exit_status(char *status)
+{
+	size_t	len;
+	size_t	i;
+
+	len = ft_strlen(status);
+	if (len > 19)
+		return (FUNC_FAIL);
+	else
+	{
+		i = 0;
+		while (status[i] != '\0')
+		{
+			if (ft_isdigit(status[i]) == 0)
+				return (FUNC_FAIL);
+			i++;
+		}
+	}
+	return (FUNC_SUCCESS);
+}
+
+void	builtin_exit(char **argv)
+{
+	write(2, "exit\n", 5);
+	if (argv[1] != NULL && argv[2] == NULL)
+	{
+		if (check_exit_status(argv[1]) == FUNC_SUCCESS)
+			exit(ft_atoi(argv[1]));
+		write(2, "numeric argument required\n", 26);//need print wrong argument
+		exit(255);
+	}
+	else if (argv[1] != NULL && argv[2] != NULL)
+	{
+		write(2, "exit: too many arguments\n", 25 );//need print wrong argument
+		return ;
+	}
+	else
+		exit(handle_exit_status(GET_EXIT_STATUS));
+}
+
+void	execution_builtin(t_proc *proc)
+{
+	if (ft_strequ(proc->argv[0], "exit"))
+		builtin_exit(proc->argv);
+}
+
 void	exec_proc(t_proc *proc)
 {
-	if (proc->binary != NULL)
-		execve(proc->binary, proc->argv, proc->env);
-	exit(EXIT_FAILURE);
+	if (proc->is_builtin == 0)
+	{
+		if (proc->binary != NULL)
+			execve(proc->binary, proc->argv, proc->env);
+		exit(EXIT_FAILURE);
+	}
+	execution_builtin(proc);
 }
 
 int		check_if_dir(char *filename)
@@ -570,7 +620,7 @@ int		create_heredoc_fd(char *str)
 	return (pipes[0]);
 }
 
-int		check_is_fd_digit(char *word_fd)
+int		check_if_number(char *word_fd)
 {
 	size_t	i;
 
@@ -595,7 +645,7 @@ int		set_fd(int *fd, char *word_fd)
 {
 	struct stat	st;
 
-	if (check_is_fd_digit(word_fd) == FUNC_FAIL)
+	if (check_if_number(word_fd) == FUNC_FAIL)
 		return (shell_err("bad redirect\n"));//need print fd name
 	*fd = ft_atoi(word_fd);
 	if (fstat(*fd, &st) == -1)
@@ -963,6 +1013,25 @@ void	jobs_get_status(t_job **jobs)
 		pid = waitpid(WAIT_ANY, &status, opt);
 }
 
+int		find_builtin(char *command)
+{
+	if (ft_strequ(command, "exit") || ft_strequ(command, "cd")
+	|| ft_strequ(command, "echo") || ft_strequ(command, "env")
+	|| ft_strequ(command, "setenv") || ft_strequ(command, "unsetenv"))
+		return (FUNC_SUCCESS);
+	return (FUNC_FAIL);
+}
+
+int		is_builtin(char *command, t_proc **proc)
+{
+	if (find_builtin(command) == FUNC_SUCCESS)
+	{
+		(*proc)->is_builtin = 1;
+		return (FUNC_SUCCESS);
+	}
+	return (FUNC_FAIL);
+}
+
 int		go_fork_job(t_job *job, int fds[3], int pipe[2], t_envlist *envlst)
 {
 	pid_t	pid;
@@ -975,7 +1044,10 @@ int		go_fork_job(t_job *job, int fds[3], int pipe[2], t_envlist *envlst)
 		node = proc->node;
 		if (prepare_argv_proc(&(proc->argv), node, proc, envlst) == FUNC_ERROR)
 			return (FUNC_ERROR);
-		check_binary(proc->argv[0], &proc->binary, envlst);
+		if (is_builtin(proc->argv[0], &proc) == FUNC_FAIL)
+			check_binary(proc->argv[0], &proc->binary, envlst);
+		if (ft_strequ(proc->argv[0], "exit") == 1)
+			execution_builtin(proc);
 		setup_stdout(proc, fds, pipe);
 		pid = fork();
 		proc->pid = pid;

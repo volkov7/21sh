@@ -480,35 +480,6 @@ char	**env_lst_to_arr(t_envlist *envlst)
 	return (env);
 }
 
-int		set_env(t_envlist **envlst, char *var, char *value)
-{
-	t_envlist	*tmp;
-	size_t		len;
-	char		*new_var;
-
-	tmp = *envlst;
-	len = ft_strlen(var);
-	if ((new_var = ft_join_str_str_str(var, "=", value)) == NULL)
-		return (FUNC_ERROR);
-	while (tmp != NULL)
-	{
-		if ((ft_strncmp(tmp->value, var, len) == 0) && tmp->value[len] == '=')
-		{
-			ft_strdel(&tmp->value);
-			tmp->value = new_var;
-			break ;
-		}
-		else if (tmp->next == NULL)
-		{
-			if ((tmp->next = create_env_node(new_var)) == NULL)
-				return (FUNC_ERROR);
-			break ;
-		}
-		tmp = tmp->next;
-	}
-	return (FUNC_SUCCESS);
-}
-
 void	execution_builtin(t_proc *proc, t_envlist **envlst)
 {
 	if (ft_strequ(proc->argv[0], "exit"))
@@ -517,6 +488,10 @@ void	execution_builtin(t_proc *proc, t_envlist **envlst)
 		builtin_echo(proc->argv);
 	else if (ft_strequ(proc->argv[0], "cd"))
 		builtin_cd(proc->argv, envlst, proc);
+	else if (ft_strequ(proc->argv[0], "setenv"))
+		builtin_setenv(proc->argv, envlst, proc);
+	else if (ft_strequ(proc->argv[0], "unsetenv"))
+		builtin_unsetenv(proc->argv, envlst, proc);
 }
 
 void	exec_proc(t_proc *proc, t_envlist **envlst)
@@ -1035,8 +1010,14 @@ int		handle_non_forked(t_job *job, int fds[3], int pipes[2], t_envlist **envlst)
 			execution_builtin(job->processes, envlst);
 		else if (ft_strequ(job->processes->argv[0], "cd") == 1)
 			execution_builtin(job->processes, envlst);
+		else if (ft_strequ(job->processes->argv[0], "setenv") == 1)
+			execution_builtin(job->processes, envlst);
+		else if (ft_strequ(job->processes->argv[0], "unsetenv") == 1)
+			execution_builtin(job->processes, envlst);
 		if (ft_strequ(job->processes->argv[0], "exit")
-		|| ft_strequ(job->processes->argv[0], "cd"))
+		|| ft_strequ(job->processes->argv[0], "cd")
+		|| ft_strequ(job->processes->argv[0], "setenv")
+		|| ft_strequ(job->processes->argv[0], "unsetenv"))
 		{
 			clean_after_fork(job->processes, fds, pipes);
 			return (FUNC_SUCCESS);

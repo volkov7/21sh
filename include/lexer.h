@@ -42,6 +42,9 @@
 # define E_CD_NO_EXIST		"cd: no such file or directory: "
 # define E_CD_NO_PERM		"cd: permission denied: "
 # define E_CD_NOT_A_DIR		"cd: not a directory: "
+# define E_TOO_FEW_ARGS		"setenv: Too few arguments\n"
+# define E_TOO_MANY_ARGS	"setenv: Too many arguments\n"
+# define E_ALLOC_MEMORY		"failed to allocate enough memory\n"
 
 /*
 **----------------------------------environment--------------------------------
@@ -173,5 +176,7 @@ void			create_newpath(char **newpath, char *argpath);
 void			chk_two_arguments(char **argv, t_proc *proc,
 								t_envlist **envlst, int opt);
 void			builtin_cd(char **argv, t_envlist **envlst, t_proc *proc);
+void			builtin_setenv(char **argv, t_envlist **envlst, t_proc *proc);
+void			builtin_unsetenv(char **arg, t_envlist **envlst, t_proc *proc);
 
 #endif

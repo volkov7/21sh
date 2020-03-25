@@ -17,7 +17,9 @@ SRCS = lexer \
 		builtin_cd_chgdir \
 		builtin_cd_create_newpath \
 		builtin_cd_error \
-		builtin_cd_two_arg
+		builtin_cd_two_arg \
+		builtin_setenv \
+		builtin_unsetenv
 
 HEADER = 	-I./include \
 			-I./libft \

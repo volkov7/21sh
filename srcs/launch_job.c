@@ -480,158 +480,46 @@ char	**env_lst_to_arr(t_envlist *envlst)
 	return (env);
 }
 
-int		check_exit_status(char *status)
+int		set_env(t_envlist **envlst, char *var, char *value)
 {
-	size_t	len;
-	size_t	i;
+	t_envlist	*tmp;
+	size_t		len;
+	char		*new_var;
 
-	len = ft_strlen(status);
-	if (len > 19)
-		return (FUNC_FAIL);
-	else
+	tmp = *envlst;
+	len = ft_strlen(var);
+	if ((new_var = ft_join_str_str_str(var, "=", value)) == NULL)
+		return (FUNC_ERROR);
+	while (tmp != NULL)
 	{
-		i = 0;
-		while (status[i] != '\0')
+		if ((ft_strncmp(tmp->value, var, len) == 0) && tmp->value[len] == '=')
 		{
-			if (ft_isdigit(status[i]) == 0)
-				return (FUNC_FAIL);
-			i++;
+			ft_strdel(&tmp->value);
+			tmp->value = new_var;
+			break ;
 		}
+		else if (tmp->next == NULL)
+		{
+			if ((tmp->next = create_env_node(new_var)) == NULL)
+				return (FUNC_ERROR);
+			break ;
+		}
+		tmp = tmp->next;
 	}
 	return (FUNC_SUCCESS);
 }
 
-void	builtin_exit(char **argv)
-{
-	write(2, "exit\n", 5);
-	if (argv[1] != NULL && argv[2] == NULL)
-	{
-		if (check_exit_status(argv[1]) == FUNC_SUCCESS)
-			exit(ft_atoi(argv[1]));
-		write(2, "numeric argument required\n", 26);//need print wrong argument
-		exit(255);
-	}
-	else if (argv[1] != NULL && argv[2] != NULL)
-	{
-		write(2, "exit: too many arguments\n", 25 );//need print wrong argument
-		return ;
-	}
-	else
-		exit(handle_exit_status(GET_EXIT_STATUS));
-}
-
-char	echo_special_character(char c)
-{
-	if (c == 'a')
-		return ('\a');
-	else if (c == 'b')
-		return ('\b');
-	else if (c == 'c')
-		return ('c');
-	else if (c == 'f')
-		return ('\f');
-	else if (c == 'n')
-		return ('\n');
-	else if (c == 'r')
-		return ('\r');
-	else if (c == 't')
-		return ('\t');
-	else if (c == 'v')
-		return ('\v');
-	else if (c == '\\')
-		return ('\\');
-	else
-		return (0);
-}
-
-void	echo_replace_special_char(char **str, int *c)
-{
-	size_t	i;
-	size_t	rep;
-	char	spec_char;
-
-	i = 0;
-	rep = 0;
-	while ((*str)[i] != '\0')
-	{
-		spec_char = echo_special_character((*str)[i + 1]);
-		if ((*str)[i] == '\\' && spec_char != 0)
-		{
-			if (spec_char == 'c')
-			{
-				*c = 0;
-				break ;
-			}
-			i++;
-			(*str)[rep] = spec_char;
-		}
-		else
-			(*str)[rep] = (*str)[i];
-		i++;
-		rep++;
-	}
-	ft_bzero(&(*str)[rep], i - rep);
-}
-
-void	echo_set_options(char **argv, int *opt, size_t *i)
-{
-	size_t	j;
-
-	while (argv[*i] != NULL)
-	{
-		if (argv[*i][0] == '-')
-		{
-			j = 0;
-			while (argv[*i][++j] != '\0')
-			{
-				if (argv[*i][j] == 'n')
-					*opt |= ECHO_OPT_n;
-				else if (argv[*i][j] == 'e')
-					*opt |= ECHO_OPT_e;
-				else if (argv[*i][j] == 'E')
-					*opt |= ECHO_OPT_E;
-			}
-		}
-		else
-			return ;
-		(*i)++;
-	}
-}
-
-void	builtin_echo(char **argv)
-{
-	size_t	i;
-	int		opt;
-	int		c;
-
-	opt = 0;
-	i = 1;
-	c = 1;
-	echo_set_options(argv, &opt, &i);
-	while (argv[i] != NULL && c)
-	{
-		if ((opt & ECHO_OPT_E) == 0 || (((opt & ECHO_OPT_E) && ((opt & ECHO_OPT_e)))))
-			echo_replace_special_char(&argv[i], &c);
-		ft_putstr(argv[i]);
-		if (argv[i + 1] != NULL && c == 1)
-			ft_putchar(' ');
-		i++;
-	}
-	if ((opt & ECHO_OPT_n) == 0 && c == 1)
-		ft_putchar('\n');
-	exit(EXIT_SUCCESS);
-}
-
-void	execution_builtin(t_proc *proc)
+void	execution_builtin(t_proc *proc, t_envlist **envlst)
 {
 	if (ft_strequ(proc->argv[0], "exit"))
 		builtin_exit(proc->argv);
 	else if (ft_strequ(proc->argv[0], "echo"))
 		builtin_echo(proc->argv);
-
+	else if (ft_strequ(proc->argv[0], "cd"))
+		builtin_cd(proc->argv, envlst, proc);
 }
 
-void	exec_proc(t_proc *proc)
+void	exec_proc(t_proc *proc, t_envlist **envlst)
 {
 	if (proc->is_builtin == 0)
 	{
@@ -639,7 +527,7 @@ void	exec_proc(t_proc *proc)
 			execve(proc->binary, proc->argv, proc->env);
 		exit(EXIT_FAILURE);
 	}
-	execution_builtin(proc);
+	execution_builtin(proc, envlst);
 }
 
 int		check_if_dir(char *filename)
@@ -843,7 +731,7 @@ void	launch_child_proc(t_proc *proc, int fds[3], int pipe[2], t_envlist *envlst)
 		write(2, "failed to allocate enough memory\n", 33);
 		exit(EXIT_FAILURE);
 	}
-	exec_proc(proc);
+	exec_proc(proc, &envlst);
 }
 
 int		handle_exit_status(int exit_status)
@@ -908,6 +796,8 @@ char	*ft_join_str_str_str(char *s1, char *s2, char *s3)
 {
 	char	*fresh;
 
+	if (s1 == NULL || s2 == NULL || s3 == NULL)
+		return (NULL);
 	fresh = ft_strnew(ft_strlen(s1) + ft_strlen(s2) + ft_strlen(s3));
 	if (fresh == NULL)
 		return (NULL);
@@ -1137,6 +1027,24 @@ int		is_builtin(char *command, t_proc **proc)
 	return (FUNC_FAIL);
 }
 
+int		handle_non_forked(t_job *job, int fds[3], int pipes[2], t_envlist **envlst)
+{
+	if (job->processes->is_builtin == 1 && job->processes->next == NULL)
+	{
+		if (ft_strequ(job->processes->argv[0], "exit") == 1)
+			execution_builtin(job->processes, envlst);
+		else if (ft_strequ(job->processes->argv[0], "cd") == 1)
+			execution_builtin(job->processes, envlst);
+		if (ft_strequ(job->processes->argv[0], "exit")
+		|| ft_strequ(job->processes->argv[0], "cd"))
+		{
+			clean_after_fork(job->processes, fds, pipes);
+			return (FUNC_SUCCESS);
+		}
+	}
+	return (FUNC_FAIL);
+}
+
 int		go_fork_job(t_job *job, int fds[3], int pipe[2], t_envlist *envlst)
 {
 	pid_t	pid;
@@ -1151,8 +1059,8 @@ int		go_fork_job(t_job *job, int fds[3], int pipe[2], t_envlist *envlst)
 			return (FUNC_ERROR);
 		if (is_builtin(proc->argv[0], &proc) == FUNC_FAIL)
 			check_binary(proc->argv[0], &proc->binary, envlst);
-		if (ft_strequ(proc->argv[0], "exit") == 1)
-			execution_builtin(proc);
+		if (handle_non_forked(job, fds, pipe, &envlst) == FUNC_SUCCESS)
+			return (FUNC_SUCCESS);
 		setup_stdout(proc, fds, pipe);
 		pid = fork();
 		proc->pid = pid;

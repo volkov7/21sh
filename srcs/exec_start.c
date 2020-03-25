@@ -32,7 +32,7 @@ t_proc	*create_proc(void)
 	new = (t_proc*)malloc(sizeof(t_proc));
 	if (new == NULL)
 		return (NULL);
-	new->pid = -1;
+	new->pid = UNINIT;
 	new->env = NULL;
 	new->binary = NULL;
 	new->argv = NULL;

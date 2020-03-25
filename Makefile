@@ -10,7 +10,14 @@ SRCS = lexer \
 		parser \
 		exec_start \
 		print_tree \
-		launch_job
+		launch_job \
+		builtin_echo \
+		builtin_exit \
+		builtin_cd \
+		builtin_cd_chgdir \
+		builtin_cd_create_newpath \
+		builtin_cd_error \
+		builtin_cd_two_arg
 
 HEADER = 	-I./include \
 			-I./libft \

@@ -1,3 +1,6 @@
+echo "\x26"
+echo -Een "\a\b\t\v\asdfsdf" | cat -e
+echo -Een -n -n -n -n -E "\a\b\c\t\v\asdfsdf" | cat -e
 >fifi | cat -e
 cat -e | >fifi
 >fifi

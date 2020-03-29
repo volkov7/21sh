@@ -12,8 +12,11 @@ void	check_var(char *argpath, int opt, t_envlist **envlst, t_proc *proc)
 {
 	if (argpath == NULL || *argpath == '\0')
 		cd_handle_exit(proc, EXIT_FAILURE);
-	if (change_dir(argpath, opt, envlst) == FUNC_ERROR)
-		cd_handle_exit(proc, EXIT_FAILURE);
+	else
+	{
+		if (change_dir(argpath, opt, envlst) == FUNC_ERROR)
+			cd_handle_exit(proc, EXIT_FAILURE);
+	}
 }
 
 int		str_is_option_cd(char *str)

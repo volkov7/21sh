@@ -492,6 +492,8 @@ void	execution_builtin(t_proc *proc, t_envlist **envlst)
 		builtin_setenv(proc->argv, envlst, proc);
 	else if (ft_strequ(proc->argv[0], "unsetenv"))
 		builtin_unsetenv(proc->argv, envlst, proc);
+	else if (ft_strequ(proc->argv[0], "env"))
+		builtin_env(proc, *envlst);
 }
 
 void	exec_proc(t_proc *proc, t_envlist **envlst)

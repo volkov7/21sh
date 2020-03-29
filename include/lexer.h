@@ -31,6 +31,7 @@
 # define CD_OPT_P			(1 << 0)
 # define CD_OPT_L			(1 << 1)
 # define CD_OPT_PRINT		(1 << 2)
+# define ENV_OPT_I			(1 << 0)
 # define GET_EXIT_STATUS	1337
 # define OPEN_FLAGS			O_RDONLY | O_CREAT | O_NONBLOCK
 # define GREAT_OPEN_FLAGS	O_WRONLY | O_CREAT | O_TRUNC
@@ -45,6 +46,8 @@
 # define E_TOO_FEW_ARGS		"setenv: Too few arguments\n"
 # define E_TOO_MANY_ARGS	"setenv: Too many arguments\n"
 # define E_ALLOC_MEMORY		"failed to allocate enough memory\n"
+# define E_ILLEGAL_OPT		"illegal option -- "
+# define E_IT_BUILTIN		"utility operand is builtin!"
 
 /*
 **----------------------------------environment--------------------------------
@@ -178,5 +181,8 @@ void			chk_two_arguments(char **argv, t_proc *proc,
 void			builtin_cd(char **argv, t_envlist **envlst, t_proc *proc);
 void			builtin_setenv(char **argv, t_envlist **envlst, t_proc *proc);
 void			builtin_unsetenv(char **arg, t_envlist **envlst, t_proc *proc);
+int				find_builtin(char *command);
+void			check_binary(char *filename, char **binary, t_envlist *envlst);
+void			builtin_env(t_proc *proc, t_envlist *envlst);
 
 #endif

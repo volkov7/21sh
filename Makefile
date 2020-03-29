@@ -19,7 +19,8 @@ SRCS = lexer \
 		builtin_cd_error \
 		builtin_cd_two_arg \
 		builtin_setenv \
-		builtin_unsetenv
+		builtin_unsetenv \
+		builtin_env
 
 HEADER = 	-I./include \
 			-I./libft \

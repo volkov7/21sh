@@ -1,10 +1,21 @@
 #include "lexer.h"
 #include <stdio.h>
 
-int		shell_err(char *error)
+int		shell_err(char *error, char *arg, int exit_status)
 {
-	write(2, error, ft_strlen(error));
+	ft_putstr_fd(error, 2);
+	if (arg != NULL)
+		ft_putendl_fd(arg, 2);
+	handle_exit_status(exit_status);
 	return (FUNC_ERROR);
+}
+
+void	shell_void_err(char *error, char *arg, int exit_status)
+{
+	ft_putstr_fd(error, 2);
+	if (arg != NULL)
+		ft_putendl_fd(arg, 2);
+	handle_exit_status(exit_status);
 }
 
 size_t	count_args(t_ast *node)
@@ -140,10 +151,7 @@ int		envvar_expansion(char **str, size_t *i, t_envlist *envlst)
 	if (*i == dollar_i + 1)
 		return (FUNC_FAIL);
 	if ((env_var = ft_strndup(&(*str)[dollar_i + 1], *i - dollar_i - 1)) == NULL)
-	{
-		handle_exit_status(EXIT_FAILURE);
-		return (shell_err("failed to allocate enough memory\n"));
-	}
+		return (shell_err(E_ALLOC_MEMORY, NULL, EXIT_FAILURE));
 	env_value = get_env_value(env_var, envlst);
 	ft_strdel(&env_var);
 	if (replace_value(str, env_value, dollar_i, *i - dollar_i) == FUNC_ERROR)
@@ -162,10 +170,7 @@ int		question_expansion(char **str, size_t *i)
 	dollar_i = *i;
 	(*i) += 2;
 	if ((exit_str = ft_itoa(handle_exit_status(GET_EXIT_STATUS))) == NULL)
-	{
-		handle_exit_status(EXIT_FAILURE);
-		return (shell_err("failed to allocate enough memory\n"));
-	}
+		return (shell_err(E_ALLOC_MEMORY, NULL, EXIT_FAILURE));
 	if (replace_value(str, exit_str, dollar_i, *i - dollar_i) == FUNC_ERROR)
 	{
 		ft_strdel(&exit_str);
@@ -208,19 +213,13 @@ int		get_user_home_path(char *login, char **home_path, t_envlist *envlst)
 	{
 		*home_path = get_env_value("HOME", envlst);
 		if (*home_path == NULL)
-		{
-			handle_exit_status(EXIT_FAILURE);
-			return (shell_err("environment value HOME not set\n"));
-		}
+			return (shell_err(E_HOME_NOT_SET, NULL, EXIT_FAILURE));
 	}
 	else
 	{
 		user_info = getpwnam(login);
 		if (user_info == NULL)
-		{
-			handle_exit_status(EXIT_FAILURE);
-			return (shell_err(": no such user or named directory:"));//need print which user
-		}
+			return (shell_err(E_NO_SUCH_USRDIR, login, EXIT_FAILURE));
 		*home_path = user_info->pw_dir;
 	}
 	return (FUNC_SUCCESS);
@@ -236,10 +235,7 @@ int		tilde_expansion(t_ast *node, size_t *i, t_envlist *envlst)
 	if (node->type == WORD && *i == 0)
 	{
 		if ((login = get_login(node, *i)) == NULL)
-		{
-			handle_exit_status(EXIT_FAILURE);
-			return (shell_err("failed to allocate enough memory\n"));// Need normal error function
-		}
+			return (shell_err(E_ALLOC_MEMORY, NULL, EXIT_FAILURE));
 		if (get_user_home_path(login, &home_path, envlst) == FUNC_ERROR)
 		{
 			ft_strdel(&login);
@@ -393,7 +389,7 @@ int		prepare_argv_proc(char ***argv, t_ast *node, t_proc *proc, t_envlist *envls
 	*argv = create_proc_argv(node);
 	// print_tree(node, 0, 0);
 	if (*argv == NULL)
-		return (shell_err("failed to allocate enough memory\n"));
+		return (shell_err(E_ALLOC_MEMORY, NULL, EXIT_FAILURE));
 	return (FUNC_SUCCESS);
 }
 
@@ -403,8 +399,8 @@ void	setup_stdout(t_proc *proc, int fds[3], int pipes[2])
 	{
 		if (pipe(pipes) < 0)
 		{
-			write(2, "Unable to create pipe\n", 22);
-			exit(1);
+			ft_putstr_fd(E_CANT_CREAT_PIPE, 2);
+			exit(EXIT_FAILURE);
 		}
 		fds[1] = pipes[1];
 	}
@@ -505,7 +501,7 @@ void	exec_proc(t_proc *proc, t_envlist **envlst)
 	{
 		if (proc->binary != NULL)
 			execve(proc->binary, proc->argv, proc->env);
-		exit(EXIT_FAILURE);
+		exit(handle_exit_status(GET_EXIT_STATUS));
 	}
 	execution_builtin(proc, envlst);
 }
@@ -517,10 +513,7 @@ int		check_if_dir(char *filename)
 	if (stat(filename, &st) == 0)
 	{
 		if (S_ISDIR(st.st_mode))
-		{
-			handle_exit_status(EXIT_FAILURE);
-			return (shell_err("is a directory\n"));//Need print what file is a directory
-		}
+			return (shell_err(E_IS_DIR, filename, EXIT_FAILURE));
 	}
 	return (FUNC_SUCCESS);
 }
@@ -531,10 +524,7 @@ int		check_valid_file(char *filename)
 
 	fd = open(filename, OPEN_FLAGS, PERMISSIONS);
 	if (fd == -1)
-	{
-		handle_exit_status(EXIT_FAILURE);
-		return(shell_err("failed to open/create\n"));//Need print which file can't open 
-	}
+		return(shell_err(E_CREATE_OPEN, filename, EXIT_FAILURE));
 	close(fd);
 	return (FUNC_SUCCESS);
 }
@@ -581,7 +571,7 @@ int		create_heredoc_fd(char *str)
 
 	handle_exit_status(EXIT_FAILURE);
 	if (pipe(pipes) == -1)
-		return (shell_err("unable to create pipe\n"));
+		return (shell_err(E_CANT_CREAT_PIPE, NULL, EXIT_FAILURE));
 	if (write(pipes[1], str, ft_strlen(str)) == -1)
 	{
 		close(pipes[0]);
@@ -619,10 +609,10 @@ int		set_fd(int *fd, char *word_fd)
 	struct stat	st;
 
 	if (check_if_number(word_fd) == FUNC_FAIL)
-		return (shell_err("bad redirect\n"));//need print fd name
+		return (shell_err(E_FILEN_NUMBER, NULL, EXIT_FAILURE));
 	*fd = ft_atoi(word_fd);
 	if (fstat(*fd, &st) == -1)
-		return (shell_err("Bad file descriptor\n"));//need print fd name
+		return (shell_err(E_BAD_FD, word_fd, EXIT_FAILURE));
 	return (FUNC_SUCCESS);
 }
 
@@ -642,9 +632,9 @@ int		redirect_input(t_ast *redir)
 	else if (set_fd(&fd, file) == FUNC_ERROR)
 		return (FUNC_ERROR);
 	if (fd == -1)
-		return (shell_err("no such file or directory\n"));// need print which file can't be opened
+		return (shell_err(E_NO_EXIST, file, EXIT_FAILURE));
 	if (dup2(fd, stream_fd) == -1)
-		return (shell_err("failed to duplicate file descriptor\n"));
+		return (shell_err(E_DUP_FAIL, NULL, EXIT_FAILURE));
 	if (redir->type == LESS || redir->type == DLESS)
 		close(fd);
 	return (FUNC_SUCCESS);
@@ -666,9 +656,9 @@ int		redirect_output(t_ast *redir)
 	else if (set_fd(&fd, file) == FUNC_ERROR)
 		return (FUNC_ERROR);
 	if (fd == -1)
-		return (shell_err("no such file or directory\n"));//need print name
+		return (shell_err(E_NO_EXIST, file, EXIT_FAILURE));
 	if (dup2(fd, stream_fd) == -1)
-		return (shell_err("failed to duplicate file descriptor\n"));
+		return (shell_err(E_DUP_FAIL, NULL, EXIT_FAILURE));
 	if (redir->type == GREAT || redir->type == DGREAT)
 		close(fd);
 	return (FUNC_SUCCESS);
@@ -708,7 +698,7 @@ void	launch_child_proc(t_proc *proc, int fds[3], int pipe[2], t_envlist *envlst)
 	proc->env = env_lst_to_arr(envlst);
 	if (proc->env == NULL)
 	{
-		write(2, "failed to allocate enough memory\n", 33);
+		ft_putstr_fd(E_ALLOC_MEMORY, 2);
 		exit(EXIT_FAILURE);
 	}
 	exec_proc(proc, &envlst);
@@ -730,8 +720,8 @@ void	setup_fork(t_proc *proc, int fds[3], int pipe[2], t_envlist *envlst)
 
 	if (proc->pid < 0)
 	{
-		write(2, "fork failed\n", 12);
-		exit(1);
+		ft_putstr_fd(E_FORK_FAIL, 2);
+		exit(EXIT_FAILURE);
 	}
 	else if (proc->pid == 0)
 		launch_child_proc(proc, fds, pipe, envlst);
@@ -768,7 +758,7 @@ int		get_paths(char ***paths, t_envlist *envlst)
 		return (FUNC_ERROR);
 	*paths = ft_strsplit(path_value, ':');
 	if (paths == NULL)
-		return (shell_err("failed to allocate enough memory\n"));
+		return (shell_err(E_ALLOC_MEMORY, NULL, EXIT_FAILURE));
 	return (FUNC_SUCCESS);
 }
 
@@ -797,9 +787,9 @@ int		check_dir(char *path, char *filename, char **binary, DIR *dir)
 		if (ft_strcmp(dp->d_name, filename) == 0)
 		{
 			if ((*binary = ft_join_str_str_str(path, "/", filename)) == NULL)
-				return (shell_err("failed to allocate enough memory\n"));
+				return (shell_err(E_ALLOC_MEMORY, NULL, EXIT_FAILURE));
 			if (lstat(*binary, &st) == -1)
-				return (shell_err("could not get stat info of file\n"));
+				return (shell_err(E_CANT_GET_STAT, *binary, EXIT_FAILURE));
 			if (S_ISREG(st.st_mode))
 				return (FUNC_SUCCESS);
 			ft_strdel(&(*binary));
@@ -840,25 +830,13 @@ int		validate_binary(char *binary)
 	struct stat	st;
 
 	if (access(binary, F_OK) == -1)
-	{
-		handle_exit_status(EXIT_NOT_FOUND);
-		return (shell_err("no such file or directory:\n"));//need print name file
-	}
+		return (shell_err(E_NO_EXIST, binary, EXIT_NOT_FOUND));
 	if (access(binary, X_OK) == -1)
-	{
-		handle_exit_status(EXIT_NOT_EXECUTE);
-		return (shell_err("permission denied\n"));//need print name file
-	}
+		return (shell_err(E_NO_PERM, binary, EXIT_NOT_EXECUTE));
 	if (stat(binary, &st) == -1)
-	{
-		handle_exit_status(EXIT_NOT_EXECUTE);
-		return (shell_err("could not get stat info of\n"));//need print name file
-	}
+		return (shell_err(E_CANT_GET_STAT, binary, EXIT_NOT_EXECUTE));
 	if (S_ISDIR(st.st_mode))
-	{
-		handle_exit_status(EXIT_NOT_EXECUTE);
-		return (shell_err("is a directory\n"));//need print name file
-	}
+		return (shell_err(E_IS_DIR, binary, EXIT_NOT_EXECUTE));
 	return (FUNC_SUCCESS);
 }
 
@@ -887,10 +865,7 @@ void	check_binary(char *filename, char **binary, t_envlist *envlst)
 				ft_strdel(binary);
 		}
 		else
-		{
-			handle_exit_status(EXIT_NOT_FOUND);
-			write(2, "command not found:\n", 19);//print filename
-		}
+			shell_void_err(E_NOT_FOUND, filename, EXIT_NOT_FOUND);
 	}
 	else
 	{

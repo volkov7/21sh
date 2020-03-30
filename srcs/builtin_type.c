@@ -74,5 +74,5 @@ void	builtin_type(char **argv, t_envlist *envlst)
 		}
 		i++;
 	}
-	exit(GET_EXIT_STATUS);
+	exit(handle_exit_status(GET_EXIT_STATUS));
 }

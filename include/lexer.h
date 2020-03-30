@@ -49,6 +49,20 @@
 # define E_ILLEGAL_OPT		"illegal option -- "
 # define E_IT_BUILTIN		"utility operand is builtin!"
 # define E_CANT_GET_CWD		"can't get current working directory\n"
+# define E_HOME_NOT_SET		"environment value HOME not set\n"
+# define E_NO_SUCH_USRDIR	"21sh: no such user or named directory: "
+# define E_IS_DIR			"21sh: is a directory: "
+# define E_CREATE_OPEN		"21sh: failed to open or create: "
+# define E_CANT_CREAT_PIPE	"21sh: Unable to create pipe\n"
+# define E_BAD_FD			"21sh: Bad file descriptor: "
+# define E_FILEN_NUMBER		"21sh: file number expected\n"
+# define E_NO_EXIST			"21sh: no such file or directory: "
+# define E_DUP_FAIL			"21sh: failed to duplicate file descriptor\n"
+# define E_FORK_FAIL		"21sh: fork failed\n"
+# define E_CANT_GET_STAT	"21sh: could not get stat info of file: "
+# define E_NO_PERM			"21sh: permission denied: "
+# define E_NOT_FOUND		"21sh: command not found: "
+
 
 /*
 **----------------------------------environment--------------------------------
@@ -173,7 +187,7 @@ int				change_dir(char *argpath, int opt, t_envlist **envlst);
 void			cd_handle_exit(t_proc *proc, int exit_status);
 int				cd_error(char *usedpath, char *argpath, char **newpath,
 															char **cwd);
-int				shell_err(char *error);
+int				shell_err(char *error, char *arg, int exit_status);
 void			print_err(char *err, char *arg);
 int				set_env(t_envlist **envlst, char *var, char *value);
 void			create_newpath(char **newpath, char *argpath);

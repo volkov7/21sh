@@ -48,6 +48,7 @@
 # define E_ALLOC_MEMORY		"failed to allocate enough memory\n"
 # define E_ILLEGAL_OPT		"illegal option -- "
 # define E_IT_BUILTIN		"utility operand is builtin!"
+# define E_CANT_GET_CWD		"can't get current working directory\n"
 
 /*
 **----------------------------------environment--------------------------------
@@ -184,5 +185,8 @@ void			builtin_unsetenv(char **arg, t_envlist **envlst, t_proc *proc);
 int				find_builtin(char *command);
 void			check_binary(char *filename, char **binary, t_envlist *envlst);
 void			builtin_env(t_proc *proc, t_envlist *envlst);
+char			*canonical_form(char *cwd, char *argpath);
+int				find_binary(char *filename, char **binary, t_envlist *envlst);
+void			builtin_type(char **argv, t_envlist *envlst);
 
 #endif

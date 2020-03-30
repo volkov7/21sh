@@ -494,6 +494,9 @@ void	execution_builtin(t_proc *proc, t_envlist **envlst)
 		builtin_unsetenv(proc->argv, envlst, proc);
 	else if (ft_strequ(proc->argv[0], "env"))
 		builtin_env(proc, *envlst);
+	else if (ft_strequ(proc->argv[0], "type"))
+		builtin_type(proc->argv, *envlst);
+	
 }
 
 void	exec_proc(t_proc *proc, t_envlist **envlst)
@@ -663,7 +666,7 @@ int		redirect_output(t_ast *redir)
 	else if (set_fd(&fd, file) == FUNC_ERROR)
 		return (FUNC_ERROR);
 	if (fd == -1)
-		return (shell_err("no such file or directory\n"));
+		return (shell_err("no such file or directory\n"));//need print name
 	if (dup2(fd, stream_fd) == -1)
 		return (shell_err("failed to duplicate file descriptor\n"));
 	if (redir->type == GREAT || redir->type == DGREAT)
@@ -989,7 +992,8 @@ int		find_builtin(char *command)
 {
 	if (ft_strequ(command, "exit") || ft_strequ(command, "cd")
 	|| ft_strequ(command, "echo") || ft_strequ(command, "env")
-	|| ft_strequ(command, "setenv") || ft_strequ(command, "unsetenv"))
+	|| ft_strequ(command, "setenv") || ft_strequ(command, "unsetenv")
+	|| ft_strequ(command, "type"))
 		return (FUNC_SUCCESS);
 	return (FUNC_FAIL);
 }

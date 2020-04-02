@@ -7,10 +7,39 @@ SRCS_DIR = ./srcs/
 FLAGS = -Wall -Wextra -Werror
 
 SRCS = lexer \
+		lexer_state \
+		lexer_state_great \
+		lexer_state_less \
+		lexer_state_more \
+		lexer_state_word \
+		lexer_misk \
 		parser \
+		parser_misk \
+		parser_node_work \
+		parser_cmd_suffix \
+		parser_command \
 		exec_start \
+		exec_job_misk \
 		print_tree \
 		launch_job \
+		fork_job \
+		prepare_argv_proc \
+		handle_exp_misk \
+		handle_expansions \
+		search_spec \
+		tilde_expansion \
+		dollar_expansion \
+		check_binary \
+		handle_nonforked \
+		handle_errors \
+		misk_functions \
+		is_builtin \
+		handle_exit_status \
+		launch_child_proc \
+		handle_redirect \
+		redirect_routine \
+		env_routine \
+		executing \
 		builtin_echo \
 		builtin_exit \
 		builtin_cd \
@@ -22,6 +51,7 @@ SRCS = lexer \
 		builtin_unsetenv \
 		builtin_env \
 		builtin_type
+
 
 HEADER = 	-I./include \
 			-I./libft \

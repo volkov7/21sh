@@ -18,13 +18,13 @@ char	*canonical_form(char *cwd, char *argpath)
 int		update_env_var(char **cwd, char **newpath, t_envlist **envlst)
 {
 	if (*cwd == NULL)
-		return (shell_err("cd: failed to allocate enough memory\n"));
+		return (shell_err(E_ALLOC_MEMORY, NULL, EXIT_FAILURE));
 	if ((set_env(envlst, "OLDPWD", *cwd) == FUNC_ERROR)
 	|| (set_env(envlst, "PWD", *newpath) == FUNC_ERROR))
 	{
 		ft_strdel(cwd);
 		ft_strdel(newpath);
-		return (shell_err("cd: failed to allocate enough memory\n"));
+		return (shell_err(E_ALLOC_MEMORY, NULL, EXIT_FAILURE));
 	}
 	ft_strdel(cwd);
 	ft_strdel(newpath);

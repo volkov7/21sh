@@ -164,7 +164,6 @@ typedef	struct	s_job
 
 
 void			lexer_state_word(t_token *token);
-static int		ft_isblank(char c);
 void			lexer_change_state(t_token *token,
 						void(*lexer_state)(t_token *token));
 int				parser_cmd_sufix(t_tokenlst **token_lst, t_ast **ast,
@@ -188,6 +187,7 @@ void			cd_handle_exit(t_proc *proc, int exit_status);
 int				cd_error(char *usedpath, char *argpath, char **newpath,
 															char **cwd);
 int				shell_err(char *error, char *arg, int exit_status);
+void			shell_void_err(char *error, char *arg, int exit_status);
 void			print_err(char *err, char *arg);
 int				set_env(t_envlist **envlst, char *var, char *value);
 void			create_newpath(char **newpath, char *argpath);
@@ -202,5 +202,58 @@ void			builtin_env(t_proc *proc, t_envlist *envlst);
 char			*canonical_form(char *cwd, char *argpath);
 int				find_binary(char *filename, char **binary, t_envlist *envlst);
 void			builtin_type(char **argv, t_envlist *envlst);
+void			lexer_state_bg(t_token *token);
+void			lexer_state_and_if(t_token *token);
+void			lexer_state_pipe(t_token *token);
+void			lexer_state_great(t_token *token);
+void			lexer_state_less(t_token *token);
+void			lexer_state_ionum(t_token *token);
+void			lexer_state_word(t_token *token);
+void			lexer_state_word_esc(t_token *token);
+void			lexer_state_start(t_token *token);
+int				ft_isblank(char c);
+int				is_spec(char c);
+int				tokenlst_addback(t_tokenlst **token_lst, int flags, char *str,
+																t_tokens type);
+int				is_redirect(t_tokens type);
+int				return_ast_del(t_ast **ast);
+int				add_right_node(t_tokenlst **token_lst, t_ast **ast,
+					int (*parser_func)(t_tokenlst **, t_ast **));
+int				ast_addnode(t_tokenlst **token_lst, t_ast **ast);
+t_ast			*create_new_node(t_tokenlst *token);
+int				parser_command(t_tokenlst **token_lst, t_ast **ast);
+int				parser_io_redirect(t_tokenlst **token_lst, t_ast **ast);
+int				parser_cmd_arg(t_tokenlst **token_lst, t_ast **ast,
+						t_ast **last_cmd_arg, t_ast **last_prefix);
+void			clear_jobs(t_job **jobs);
+int				job_add_proc(t_job *job);
+t_job			*get_last_job(t_job **jobs);
+t_job			*create_job(void);
+int				fork_job(t_job *job, int fds[3], int pipe[2], t_envlist *envlst);
+int				prepare_argv_proc(char ***argv, t_ast *node, t_proc *proc,
+															t_envlist *envlst);
+void			ft_strarrdel(char ***arr);
+int				dquote_spec(char c);
+int				handle_expansions(t_ast *node, t_envlist *envlst);
+int				search_spec(t_ast *node, t_envlist *envlst);
+int				tilde_expansion(t_ast *node, size_t *i, t_envlist *envlst);
+int				replace_value(char **str, char *value, size_t start,
+															size_t len);
+int				dollar_expansion(char **str, size_t *i, t_envlist *envlst);
+int				is_builtin(char *command, t_proc **proc);
+void			check_binary(char *filename, char **binary, t_envlist *envlst);
+int				handle_non_forked(t_job *job, int fds[3], int pipes[2],
+													t_envlist **envlst);
+void			launch_child_proc(t_proc *proc, int fds[3], int pipe[2],
+													t_envlist *envlst);
+int				validate_binary(char *binary);
+void			execution_builtin(t_proc *proc, t_envlist **envlst);
+int				handle_redirs(t_ast *redir);
+void			exec_proc(t_proc *proc, t_envlist **envlst);
+char			**env_lst_to_arr(t_envlist *envlst);
+void			initial_set_fd(t_ast *redir, char **file, int *stream_fd,
+																int flag);
+int				set_fd(int *fd, char *word_fd);
+int				close_fd(int fd);
 
 #endif

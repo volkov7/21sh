@@ -136,6 +136,7 @@ int				main(int argc, char **argv, char **env)
 	while ((linelen = getline(&line, &linecap, stdin)) > 0)
 	{
 		line[linelen - 1] = '\0';
+		// line = ft_strdup("unsetenv MONO_PATH");
 		ast = NULL;
 		tokenlst = NULL;
 		lexer(&line, &tokenlst);
@@ -143,7 +144,7 @@ int				main(int argc, char **argv, char **env)
 		printf("\n");
 		parser_start(&tokenlst, &ast);
 		// print_tree(ast, 0, 0);
-		exec_complete_command(ast, envlst);
+		exec_complete_command(ast, &envlst);
 		clear_tokenlst(&tokenlst);
 		delete_tree(&ast);
 		free(line);

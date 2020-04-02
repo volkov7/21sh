@@ -71,7 +71,7 @@ void	jobs_get_status(t_job **jobs)
 		pid = waitpid(WAIT_ANY, &status, opt);
 }
 
-void	launch_job(t_job *job, t_envlist *envlst)
+void	launch_job(t_job *job, t_envlist **envlst)
 {
 	int		fds[3];
 	int		pipe[2];

@@ -71,17 +71,17 @@ int		create_file(t_ast *redir)
 }
 
 void	launch_child_proc(t_proc *proc, int fds[3], int pipe[2],
-											t_envlist *envlst)
+											t_envlist **envlst)
 {
 	if (create_file(proc->redir) == FUNC_ERROR
 	|| handle_fds(fds, pipe) == FUNC_ERROR
 	|| handle_redirs(proc->redir) == FUNC_ERROR)
 		exit(EXIT_FAILURE);
-	proc->env = env_lst_to_arr(envlst);
+	proc->env = env_lst_to_arr(*envlst);
 	if (proc->env == NULL)
 	{
 		ft_putstr_fd(E_ALLOC_MEMORY, 2);
 		exit(EXIT_FAILURE);
 	}
-	exec_proc(proc, &envlst);
+	exec_proc(proc, envlst);
 }

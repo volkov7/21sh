@@ -1,4 +1,5 @@
 #include "lexer.h"
+#include <stdio.h>
 
 void	delete_env_var(t_envlist **envlst, char *value)
 {
@@ -11,9 +12,11 @@ void	delete_env_var(t_envlist **envlst, char *value)
 	if (tmp != NULL && ft_strnequ(tmp->value, value, len)
 							&& tmp->value[len] == '=')
 	{
+		printf("HERE\n");
 		*envlst = (*envlst)->next;
 		ft_strdel(&(tmp->value));
 		free(tmp);
+		return ;
 	}
 	while (tmp != NULL && (ft_strnequ(tmp->value, value, len) == 0
 							|| tmp->value[len] != '='))

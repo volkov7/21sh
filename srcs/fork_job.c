@@ -30,7 +30,7 @@ void	clean_after_fork(t_proc *proc, int fds[3], int pipes[2])
 		ft_strarrdel(&proc->env);
 }
 
-void	setup_fork(t_proc *proc, int fds[3], int pipe[2], t_envlist *envlst)
+void	setup_fork(t_proc *proc, int fds[3], int pipe[2], t_envlist **envlst)
 {
 	int		status;
 
@@ -43,7 +43,7 @@ void	setup_fork(t_proc *proc, int fds[3], int pipe[2], t_envlist *envlst)
 		launch_child_proc(proc, fds, pipe, envlst);
 }
 
-int		fork_job(t_job *job, int fds[3], int pipe[2], t_envlist *envlst)
+int		fork_job(t_job *job, int fds[3], int pipe[2], t_envlist **envlst)
 {
 	pid_t	pid;
 	t_proc	*proc;
@@ -53,11 +53,11 @@ int		fork_job(t_job *job, int fds[3], int pipe[2], t_envlist *envlst)
 	while (proc != NULL)
 	{
 		node = proc->node;
-		if (prepare_argv_proc(&(proc->argv), node, proc, envlst) == FUNC_ERROR)
+		if (prepare_argv_proc(&(proc->argv), node, proc, *envlst) == FUNC_ERROR)
 			return (FUNC_ERROR);
 		if (is_builtin(proc->argv[0], &proc) == FUNC_FAIL)
-			check_binary(proc->argv[0], &proc->binary, envlst);
-		if (handle_non_forked(job, fds, pipe, &envlst) == FUNC_SUCCESS)
+			check_binary(proc->argv[0], &proc->binary, *envlst);
+		if (handle_non_forked(job, fds, pipe, envlst) == FUNC_SUCCESS)
 			return (FUNC_SUCCESS);
 		setup_stdout(proc, fds, pipe);
 		pid = fork();

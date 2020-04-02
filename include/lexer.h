@@ -172,8 +172,8 @@ int				parser_start(t_tokenlst **token_lst, t_ast **ast);
 void			print_tree(t_ast *ast, int space, int depth);// debugging
 char			*get_token_str(t_tokens type);// mb need delete
 void			print_lex(t_tokenlst *token_lst);// debugging
-int				exec_complete_command(t_ast *ast, t_envlist *envlst);
-void			launch_job(t_job *job, t_envlist *envlst);
+int				exec_complete_command(t_ast *ast, t_envlist **envlst);
+void			launch_job(t_job *job, t_envlist **envlst);
 int				is_redirect(t_tokens type);
 int				handle_exit_status(int exit_status);
 char			*get_env_value(char *var, t_envlist *envlst);
@@ -229,7 +229,7 @@ void			clear_jobs(t_job **jobs);
 int				job_add_proc(t_job *job);
 t_job			*get_last_job(t_job **jobs);
 t_job			*create_job(void);
-int				fork_job(t_job *job, int fds[3], int pipe[2], t_envlist *envlst);
+int				fork_job(t_job *job, int fds[3], int pipe[2], t_envlist **envlst);
 int				prepare_argv_proc(char ***argv, t_ast *node, t_proc *proc,
 															t_envlist *envlst);
 void			ft_strarrdel(char ***arr);
@@ -245,7 +245,7 @@ void			check_binary(char *filename, char **binary, t_envlist *envlst);
 int				handle_non_forked(t_job *job, int fds[3], int pipes[2],
 													t_envlist **envlst);
 void			launch_child_proc(t_proc *proc, int fds[3], int pipe[2],
-													t_envlist *envlst);
+													t_envlist **envlst);
 int				validate_binary(char *binary);
 void			execution_builtin(t_proc *proc, t_envlist **envlst);
 int				handle_redirs(t_ast *redir);

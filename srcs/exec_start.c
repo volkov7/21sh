@@ -61,7 +61,7 @@ int		exec_list(t_ast *ast, t_job **jobs)
 	return (FUNC_SUCCESS);
 }
 
-int		exec_complete_command(t_ast *ast, t_envlist *envlst)
+int		exec_complete_command(t_ast *ast, t_envlist **envlst)
 {
 	t_job	*jobs;
 

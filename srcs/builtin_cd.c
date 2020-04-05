@@ -64,7 +64,6 @@ void	builtin_cd(char **argv, t_envlist **envlst, t_proc *proc)
 	i = 1;
 	opt = CD_OPT_L;
 	cd_set_option(argv, &i, &opt);
-	handle_exit_status(EXIT_SUCCESS);
 	if (argv[i] != NULL && argv[i + 1] != NULL && argv[i + 2] != NULL)
 	{
 		print_err(E_CD_MANY_ARG, NULL);
@@ -81,4 +80,5 @@ void	builtin_cd(char **argv, t_envlist **envlst, t_proc *proc)
 		check_var(get_env_value("HOME", *envlst), opt, envlst, proc);
 	else
 		change_dir(argv[i], opt, envlst);
+	cd_handle_exit(proc, EXIT_SUCCESS);
 }

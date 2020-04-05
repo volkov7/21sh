@@ -48,6 +48,7 @@ void	chk_two_arguments(char **argv, t_proc *proc, t_envlist **envlst,
 	{
 		print_err(E_CD_NOT_IN_PWD, argv[0]);
 		cd_handle_exit(proc, EXIT_FAILURE);
+		return ;
 	}
 	opt |= CD_OPT_PRINT;
 	ret = change_dir(changed_cwd, opt, envlst);

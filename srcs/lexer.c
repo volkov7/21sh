@@ -12,7 +12,7 @@ int				add_token_to_lst(t_tokenlst *tokenlst, t_token *token)
 		return (FUNC_ERROR);
 	if (token->tk_type == WORD || token->tk_type == IO_NUMBER)
 	{
-		if (!(str = ft_strnew((size_t)token->tk_len)))
+		if (!(str = ft_strnew(token->tk_len)))
 			return (FUNC_ERROR);
 		if (!(ft_strncpy(str, &(token->str[tk_start]), token->tk_len)))
 			return (FUNC_ERROR);
@@ -136,7 +136,6 @@ int				main(int argc, char **argv, char **env)
 	while ((linelen = getline(&line, &linecap, stdin)) > 0)
 	{
 		line[linelen - 1] = '\0';
-		// line = ft_strdup("unsetenv MONO_PATH");
 		ast = NULL;
 		tokenlst = NULL;
 		lexer(&line, &tokenlst);

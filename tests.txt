@@ -1,3 +1,11 @@
+-----------cd----------
+cd 21sh 2>&1 | grep 21sh			(+)
+cd ////								(+)
+cd ///								(+)
+cd //								(+)
+cd /								(+)
+cd /////tmp							(+)
+=======================
 echo "\x26"
 echo -Een "\a\b\t\v\asdfsdf" | cat -e
 echo -Een -n -n -n -n -E "\a\b\c\t\v\asdfsdf" | cat -e

@@ -110,9 +110,9 @@ typedef struct	s_tokenlst
 typedef struct	s_toke
 {
 	t_tokens			tk_type;
-	int					tk_len;
+	size_t				tk_len;
 	char				*str;
-	int					str_index;
+	size_t				str_index;
 	int					flags;
 }				t_token;
 

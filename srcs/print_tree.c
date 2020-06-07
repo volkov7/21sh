@@ -1,5 +1,5 @@
 #include "lexer.h"
-#include <stdio.h>
+#include <stdio.h>// Don't forget fix this file
 
 #define COUNT 5
 
@@ -45,8 +45,6 @@ static char	*single_tk_str(t_tokens type)
 		return ("|");
 	else if (type == SEMICOL)
 		return (";");
-	else if (type == NEWLINE)
-		return ("NEWLINE");
 	return ("ERROR");
 }
 
@@ -59,7 +57,7 @@ char		*get_token_str(t_tokens type)
 	else if (type == IO_NUMBER)
 		return ("IO_NUM");
 	else if (type == NEWLINE)
-		return ("NEWLINE");
+		return ("\\n");
 	else if (type == END)
 		return ("END");
 	else

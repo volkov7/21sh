@@ -3,29 +3,27 @@
 /*                                                        :::      ::::::::   */
 /*   ft_strrchr.c                                       :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: jsance <jsance@student.42.fr>              +#+  +:+       +#+        */
+/*   By: nriker <marvin@42.fr>                      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2019/09/06 10:43:17 by jsance            #+#    #+#             */
-/*   Updated: 2019/09/07 19:43:56 by jsance           ###   ########.fr       */
+/*   Created: 2019/09/06 10:20:43 by nriker            #+#    #+#             */
+/*   Updated: 2019/09/11 12:16:50 by nriker           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "libft.h"
 
-char	*ft_strrchr(const char *str, int c)
+char	*ft_strrchr(const char *s, int c)
 {
-	const char	*found;
+	char *str;
 
-	if ((char)c == '\0' && *str == '\0')
-		return ((char *)str);
-	found = 0;
-	while (*str != '\0')
+	str = 0;
+	while (*s)
 	{
-		if (*str == (char)c)
-			found = str;
-		str++;
-		if ((char)c == '\0' && *str == '\0')
-			return ((char*)str);
+		if (*s == (char)c)
+			str = (char*)s;
+		++s;
 	}
-	return ((char *)found);
+	if (*s == (char)c)
+		str = (char*)s;
+	return (str);
 }

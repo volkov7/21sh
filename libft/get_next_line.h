@@ -3,20 +3,20 @@
 /*                                                        :::      ::::::::   */
 /*   get_next_line.h                                    :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: volkker <volkker@student.42.fr>            +#+  +:+       +#+        */
+/*   By: nriker <nriker@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2019/09/15 11:33:56 by jsance            #+#    #+#             */
-/*   Updated: 2020/01/30 08:52:49 by volkker          ###   ########.fr       */
+/*   Created: 2019/09/11 15:50:30 by nriker            #+#    #+#             */
+/*   Updated: 2019/11/19 18:26:04 by nriker           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #ifndef GET_NEXT_LINE_H
 # define GET_NEXT_LINE_H
 
-# include "./libft.h"
-# define BUFF_SIZE	7
-# define FD_MAX		1024
+# define BUFF_SIZE 1
 
-int get_next_line(const int fd, char **line);
+# include "libft.h"
+
+int		get_next_line(const int fd, char **line);
 
 #endif

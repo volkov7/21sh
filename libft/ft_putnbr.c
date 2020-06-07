@@ -3,39 +3,38 @@
 /*                                                        :::      ::::::::   */
 /*   ft_putnbr.c                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: jsance <jsance@student.42.fr>              +#+  +:+       +#+        */
+/*   By: nriker <marvin@42.fr>                      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2019/09/08 18:54:40 by jsance            #+#    #+#             */
-/*   Updated: 2019/09/08 18:55:16 by jsance           ###   ########.fr       */
+/*   Created: 2019/09/06 11:04:42 by nriker            #+#    #+#             */
+/*   Updated: 2019/09/07 15:08:30 by nriker           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "libft.h"
 
-void	ft_putnbr(int n)
+void	ft_putnbr(int nb)
 {
-	int i;
-	int copy;
+	char	s[12];
+	int		i;
 
-	i = 1;
-	if (n == -2147483648)
+	i = 0;
+	if (nb == 0)
+		ft_putchar('0');
+	else if (nb == -2147483648)
+		ft_putstr("-2147483648");
+	else
 	{
-		copy = n;
-		n++;
+		if (nb < 0)
+		{
+			ft_putchar('-');
+			nb *= -1;
+		}
+		while (nb)
+		{
+			s[i++] = '0' + nb % 10;
+			nb /= 10;
+		}
 	}
-	if (n < 0)
-	{
-		n = -n;
-		ft_putchar('-');
-	}
-	if (n >= 10)
-	{
-		ft_putnbr(n / 10);
-		if (copy == -2147483648)
-			ft_putchar('8');
-		else
-			ft_putnbr(n % 10);
-	}
-	if (n < 10)
-		ft_putchar('0' + n);
+	while (i)
+		ft_putchar(s[--i]);
 }

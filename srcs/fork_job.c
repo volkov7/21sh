@@ -43,6 +43,40 @@ void	setup_fork(t_proc *proc, int fds[3], int pipe[2], t_envlist **envlst)
 		launch_child_proc(proc, fds, pipe, envlst);
 }
 
+void	void_create_file(t_ast *redir)
+{
+	char	*filename;
+	int		fd;
+
+	if (redir == NULL)
+		return ;
+	void_create_file(redir->left);
+	if (redir->type == GREAT || redir->type == DGREAT)
+	{
+		if (redir->right->type == IO_NUMBER)
+			filename = redir->right->left->str;
+		else
+			filename = redir->right->str;
+		fd = open(filename, OPEN_FLAGS, PERMISSIONS);
+		close(fd);
+	}
+}
+
+void	handle_files(t_proc *proc)
+{
+	t_proc	*tmp;
+
+	tmp = proc;
+	while (tmp != NULL)
+	{
+		if (tmp->node->type == WORD)
+			void_create_file(tmp->node->right);
+		else
+			void_create_file(tmp->node);
+		tmp = tmp->next;
+	}
+}
+
 int		fork_job(t_job *job, int fds[3], int pipe[2], t_envlist **envlst)
 {
 	pid_t	pid;
@@ -50,6 +84,7 @@ int		fork_job(t_job *job, int fds[3], int pipe[2], t_envlist **envlst)
 	t_ast	*node;
 
 	proc = job->processes;
+	handle_files(proc);
 	while (proc != NULL)
 	{
 		node = proc->node;

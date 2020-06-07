@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   ft_strmapi.c                                       :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: jsance <jsance@student.42.fr>              +#+  +:+       +#+        */
+/*   By: nriker <marvin@42.fr>                      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2019/09/07 21:24:41 by jsance            #+#    #+#             */
-/*   Updated: 2019/09/10 09:02:48 by jsance           ###   ########.fr       */
+/*   Created: 2019/09/07 11:08:41 by nriker            #+#    #+#             */
+/*   Updated: 2019/09/11 16:14:03 by nriker           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,22 +14,20 @@
 
 char	*ft_strmapi(char const *s, char (*f)(unsigned int, char))
 {
-	char			*fresh;
-	unsigned int	index;
+	char			*str;
+	char			*str1;
+	unsigned int	i;
 
-	if (s && f)
+	if (!s || !f)
+		return (0);
+	i = 0;
+	if (!(str = (char*)ft_memalloc((size_t)(ft_strlen(s) + 1))))
+		return (0);
+	str1 = str;
+	while (*s)
 	{
-		index = 0;
-		fresh = (char*)malloc(sizeof(*fresh) * ft_strlen(s) + 1);
-		if (!fresh)
-			return (NULL);
-		while (s[index] != '\0')
-		{
-			fresh[index] = f(index, s[index]);
-			index++;
-		}
-		fresh[index] = '\0';
-		return (fresh);
+		*(str1++) = (*f)(i, *(s++));
+		++i;
 	}
-	return (NULL);
+	return (str);
 }

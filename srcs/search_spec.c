@@ -18,7 +18,9 @@ int		search_spec(t_ast *node, t_envlist *envlst)
 	quote = 0x0;
 	while (node->str[i] != '\0')
 	{
-		if (node->str[i] == '\'' || node->str[i] == '\"')
+		if (node->str[i] == '\\' && quote != '\'')
+			i += 2;
+		else if (node->str[i] == '\'' || node->str[i] == '\"')
 			update_quote(&quote, node->str[i], &i);
 		else if (node->str[i] == '$' && quote != '\'')
 		{

@@ -66,7 +66,7 @@ void	jobs_get_status(t_job **jobs)
 	int		opt;
 
 	opt = 0;
-	pid = waitpid(WAIT_ANY, &status, opt);
+	pid = waitpid(WAIT_ANY, &status, opt);// Здесь не работает, если включить функцию signals
 	while (found_process(pid, status, jobs) == FUNC_SUCCESS)
 		pid = waitpid(WAIT_ANY, &status, opt);
 }

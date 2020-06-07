@@ -3,99 +3,90 @@
 /*                                                        :::      ::::::::   */
 /*   ft_strsplit.c                                      :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: jsance <jsance@student.42.fr>              +#+  +:+       +#+        */
+/*   By: nriker <nriker@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2019/09/08 13:44:07 by jsance            #+#    #+#             */
-/*   Updated: 2020/02/01 13:55:51 by jsance           ###   ########.fr       */
+/*   Created: 2019/09/09 20:45:35 by nriker            #+#    #+#             */
+/*   Updated: 2019/12/02 09:17:37 by nriker           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "libft.h"
 
-static size_t		word_count(const char *str, char c)
+static size_t	sized(char const *s, char c)
 {
-	size_t	words;
-	size_t	i;
+	size_t all;
 
-	i = 0;
-	words = 0;
-	while (str[i] != '\0')
+	all = 0;
+	while (*s)
 	{
-		while (str[i] == c)
-			i++;
-		if (!str[i])
-			break ;
-		words++;
-		while (str[i] && str[i] != c)
-			i++;
-	}
-	return (words);
-}
-
-int					copy_word(char **fresh, const char *str, size_t start,
-																size_t end)
-{
-	char	*tmp;
-
-	if (!(tmp = ft_strsub(str, start, end - start)))
-		return (1);
-	if (!(ft_strcpy(*fresh, (const char *)tmp)))
-		return (1);
-	ft_strdel(&tmp);
-	return (0);
-}
-
-static int			split(char **fresh, size_t words, char const *str, char c)
-{
-	size_t	i;
-	size_t	start;
-	size_t	end;
-
-	i = 0;
-	start = 0;
-	while (i < words && str[start])
-	{
-		while (str[start] == c)
-			start++;
-		end = start;
-		while (str[end] && str[end] != c)
-			end++;
-		if (!(fresh[i] = (char*)malloc(sizeof(fresh) * (end - start) + 1)))
+		while (*s == c)
+			++s;
+		if (*s)
 		{
-			while ((long int)i-- >= 0)
-				free(fresh[i]);
-			return (1);
+			all++;
+			while (*s && *s != c)
+				s++;
 		}
-		if (copy_word(&fresh[i], str, start, end))
-			return (1);
-		i++;
-		start = end + 1;
 	}
-	return (0);
+	return (all);
 }
 
-char				**ft_strsplit(char const *s, char c)
+static char		*getword(char *word, char c)
 {
-	size_t	words;
-	char	**fresh;
+	char *start;
 
-	if (!s)
-		return (NULL);
-	words = word_count(s, c);
-	if (!words)
+	start = word;
+	while (*word && *word != c)
+		word++;
+	*word = '\0';
+	return (ft_strdup(start));
+}
+
+static char		**to_free(char **str, size_t i)
+{
+	while (i--)
+		ft_strdel(&(str[i]));
+	free(*str);
+	str = NULL;
+	return (NULL);
+}
+
+static char		**getline(char *s, char c, size_t all)
+{
+	size_t	i;
+	char	**str;
+	char	*str2;
+
+	i = 0;
+	if ((str = (char **)ft_memalloc(sizeof(char*) * (all + 1))))
 	{
-		if (!(fresh = (char**)malloc(sizeof(*fresh))))
-			return (NULL);
-		fresh[0] = NULL;
-		return (fresh);
+		while (i < all)
+		{
+			while (*s == c)
+				++s;
+			if (*s)
+			{
+				if (!(str2 = getword(s, c)))
+				{
+					return (to_free(str, i));
+				}
+				str[i++] = str2;
+				s += (ft_strlen(str2) + 1);
+			}
+		}
+		str[i] = NULL;
 	}
-	if (!(fresh = (char**)malloc(sizeof(*fresh) * words + 1)))
+	return (str);
+}
+
+char			**ft_strsplit(char const *s, char c)
+{
+	char **str;
+	char *str2;
+
+	if (!s || !(str2 = ft_strdup((char*)s)))
 		return (NULL);
-	if (split(fresh, words, s, c))
-	{
-		free(fresh);
-		return (NULL);
-	}
-	fresh[words] = NULL;
-	return (fresh);
+	str = getline(str2, c, sized(str2, c));
+	free(str2);
+	return (str);
 }

@@ -70,27 +70,28 @@ int		exec_complete_command(t_ast *ast, t_envlist **envlst)
 		return (FUNC_ERROR);
 	if (exec_list(ast, &jobs) == FUNC_ERROR)
 		return (FUNC_ERROR);
+	
 	// ---------------------------------------------
-	t_job	*tmp;
-	t_proc	*tmp2;
-	tmp = jobs;
-	while (tmp)
-	{
-		int		i = 0;
-		tmp2 = tmp->processes;
-		while(tmp2)
-		{
-			write(1, "\n", 1);
-			print_tree(tmp2->node, 0, 0);
-			printf("process = %d\n", i);
-			printf("andor = %d\n", tmp->andor);
-			i++;
-			write(1, "===========", 11);
-			tmp2 = tmp2->next;
-		}
-		tmp = tmp->next;
-	}
-	write(1, "\n", 1);
+	// t_job	*tmp;
+	// t_proc	*tmp2;
+	// tmp = jobs;
+	// while (tmp)
+	// {
+	// 	int		i = 0;
+	// 	tmp2 = tmp->processes;
+	// 	while(tmp2)
+	// 	{
+	// 		write(1, "\n", 1);
+	// 		print_tree(tmp2->node, 0, 0);
+	// 		printf("process = %d\n", i);
+	// 		printf("andor = %d\n", tmp->andor);
+	// 		i++;
+	// 		write(1, "===========", 11);
+	// 		tmp2 = tmp2->next;
+	// 	}
+	// 	tmp = tmp->next;
+	// }
+	// write(1, "\n", 1);
 	// ---------------------------------------------
 	launch_job(jobs, envlst);
 	clear_jobs(&jobs);

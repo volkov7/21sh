@@ -29,7 +29,7 @@ void	remove_dquote(char **str, size_t *i, size_t *rep)
 	(*i)++;
 	while ((*str)[*i] != '\0' && (*str)[*i] != '"')
 	{
-		if ((*str)[*i] == '\\' && dquote_spec((*str)[*i + 1]) == 1)
+		if ((*str)[*i] == '\\' && dquote_spec((*str)[*i + 1]) == FUNC_SUCCESS)
 			remove_backslash(str, i, rep);
 		else
 		{
@@ -42,7 +42,7 @@ void	remove_dquote(char **str, size_t *i, size_t *rep)
 		(*i)++;
 }
 
-void	quote_removal(char **str)
+void	quote_removal(char **str, int is_heredoc)
 {
 	size_t	i;
 	size_t	rep;
@@ -51,11 +51,13 @@ void	quote_removal(char **str)
 	rep = 0;
 	while ((*str)[i] != '\0')
 	{
-		if ((*str)[i] == '\\')
+		if ((*str)[i] == '\\' && is_heredoc == 0)
 			remove_backslash(str, &i, &rep);
-		else if ((*str)[i] == '\'')
+		else if ((*str)[i] == '\\' && is_heredoc)
+			remove_heredoc_baskslash(str, &i, &rep);
+		else if ((*str)[i] == '\'' && is_heredoc == 0)
 			remove_quote(str, &i, &rep);
-		else if ((*str)[i] == '"')
+		else if ((*str)[i] == '"' && is_heredoc == 0)
 			remove_dquote(str, &i, &rep);
 		else
 		{
@@ -75,12 +77,14 @@ int		handle_expansions(t_ast *node, t_envlist *envlst)
 		return (FUNC_ERROR);
 	if (handle_expansions(node->left, envlst) == FUNC_ERROR)
 		return (FUNC_ERROR);
-	if (node->type == WORD && node->flags & HAS_SPECIAL)
+	if (node->type == WORD && node->flags & HAS_SPECIAL
+		&& !(node->flags & HEREDOC_NOEXP))
 	{
 		if (search_spec(node, envlst) == FUNC_ERROR)
 			return (FUNC_ERROR);
+		
 	}
-	if (node->type == WORD)
-		quote_removal(&node->str);
+	if (node->type == WORD && !(node->flags & HEREDOC_NOEXP))
+		quote_removal(&node->str, node->flags & IS_HEREDOC);
 	return (FUNC_SUCCESS);
 }

@@ -3,65 +3,97 @@
 /*                                                        :::      ::::::::   */
 /*   get_next_line.c                                    :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: jsance <jsance@student.42.fr>              +#+  +:+       +#+        */
+/*   By: nriker <marvin@42.fr>                      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2019/09/21 14:10:42 by jsance            #+#    #+#             */
-/*   Updated: 2019/09/21 15:40:23 by jsance           ###   ########.fr       */
+/*   Created: 2019/09/20 08:03:35 by nriker            #+#    #+#             */
+/*   Updated: 2019/09/22 21:41:25 by nriker           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "get_next_line.h"
 
-int		new_line(char **line, char **fds, int fd)
+static t_list	*get_old(t_list **old, const int fd)
 {
-	int				len;
-	char			*tmp;
+	t_list	*copy;
 
-	len = 0;
-	while (fds[fd][len] != '\n' && fds[fd][len] != '\0')
-		len++;
-	if (fds[fd][len] == '\n')
-	{
-		*line = ft_strsub(fds[fd], 0, len);
-		tmp = ft_strdup(fds[fd] + len + 1);
-		ft_strdel(&fds[fd]);
-		fds[fd] = tmp;
-		if (!(fds[fd][0]))
-			ft_strdel(&fds[fd]);
-	}
-	else if (fds[fd][len] == '\0')
-	{
-		*line = ft_strdup(fds[fd]);
-		ft_strdel(&fds[fd]);
-	}
-	return (1);
+	if (!*old)
+		if (!(*old = ft_lstnew("\0", 1)))
+			return (NULL);
+	copy = *old;
+	while (copy->next && copy->content_size != (size_t)fd)
+		copy = copy->next;
+	if (copy->content_size == (size_t)fd)
+		return (copy);
+	if (!(copy->next = ft_lstnew("\0", 1)))
+		return (NULL);
+	copy->next->content_size = fd;
+	return (copy->next);
 }
 
-int		get_next_line(const int fd, char **line)
+static t_list	*read_buf(t_list *copy)
 {
-	char			*tmp;
-	char			*buff;
-	static char		*fds[FD_MAX];
-	int				ret;
+	int		red;
+	int		i;
+	char	buf[BUFF_SIZE + 1];
 
-	if (fd < 0 || !line)
-		return (-1);
-	buff = ft_strnew(BUFF_SIZE + 1);
-	while ((ret = read(fd, buff, BUFF_SIZE)) > 0)
+	while ((red = read(copy->content_size, buf, BUFF_SIZE)))
 	{
-		buff[ret] = '\0';
-		if (!fds[fd])
-			fds[fd] = ft_strnew(0);
-		tmp = ft_strjoin(fds[fd], buff);
-		ft_strdel(&fds[fd]);
-		fds[fd] = tmp;
-		if (ft_strchr(tmp, '\n'))
-			break ;
+		i = -1;
+		buf[red] = '\0';
+		while (red--)
+		{
+			++i;
+			if (buf[i] == '\n' || buf[i] == 0)
+			{
+				if (!(copy->content = ft_strjoinfree(copy->content, buf)))
+					return (NULL);
+				return (copy);
+			}
+		}
+		if (!(copy->content = ft_strjoinfree(copy->content, buf)))
+			return (NULL);
 	}
-	free(buff);
-	if (ret < 0)
+	return (copy);
+}
+
+static char		*get_line(char **line, t_list *copy)
+{
+	char	*str;
+
+	if (!(ft_strchr(copy->content, '\n')))
+	{
+		if (!(*line = ft_strdup(copy->content)))
+			return (NULL);
+		free(copy->content);
+		copy->content = "\0";
+		return (*line);
+	}
+	else if (ft_strchr(copy->content, '\n') == NULL)
+		*line = "\n";
+	else if (!(*line = ft_strcut(copy->content, '\n')))
+		return (NULL);
+	if (!(str = ft_strdup((ft_strchr(copy->content, '\n') + 1))))
+		return (NULL);
+	free(copy->content);
+	copy->content = str;
+	return (*line);
+}
+
+int				get_next_line(const int fd, char **line)
+{
+	static t_list	*old;
+	t_list			*copy;
+	char			s;
+
+	if (BUFF_SIZE < 1 || (read(fd, &s, 0) < 0))
 		return (-1);
-	if (ret == 0 && !fds[fd])
+	if (!(copy = get_old(&old, fd)))
+		return (-1);
+	if (!(copy = read_buf(copy)))
+		return (-1);
+	if (ft_strlen(copy->content) == 0)
 		return (0);
-	return (new_line(line, fds, fd));
+	if (!(*line = get_line(line, copy)))
+		return (-1);
+	return (1);
 }

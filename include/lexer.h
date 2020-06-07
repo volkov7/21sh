@@ -11,6 +11,7 @@
 # include <sys/types.h>
 # include <uuid/uuid.h>
 # include "../libft/libft.h"
+# include "ft_21sh.h"
 
 # define FUNC_ERROR			-1
 # define FUNC_FAIL			0
@@ -25,6 +26,8 @@
 # define HAS_SPECIAL		(1 << 0)
 # define QUOTE_STATE		(1 << 1)
 # define DQUOTE_STATE		(1 << 2)
+# define HEREDOC_NOEXP		(1 << 3)
+# define IS_HEREDOC			(1 << 4)
 # define ECHO_OPT_SMALL_N	(1 << 0)
 # define ECHO_OPT_SMALL_E	(1 << 1)
 # define ECHO_OPT_E			(1 << 2)
@@ -39,7 +42,7 @@
 # define PERMISSIONS		S_IRUSR | S_IWUSR | S_IRGRP | S_IROTH
 # define E_CD_MANY_ARG		"cd: too many arguments"
 # define E_CD_NOT_IN_PWD	"cd: string not in pwd: "
-# define E_CD_CANT_GET_CWD	"cd: can't get current working directory\n"
+# define E_CD_CANT_GET_CWD	"cd: can't get current working directory"
 # define E_CD_NO_EXIST		"cd: no such file or directory: "
 # define E_CD_NO_PERM		"cd: permission denied: "
 # define E_CD_NOT_A_DIR		"cd: not a directory: "
@@ -62,6 +65,7 @@
 # define E_CANT_GET_STAT	"21sh: could not get stat info of file: "
 # define E_NO_PERM			"21sh: permission denied: "
 # define E_NOT_FOUND		"21sh: command not found: "
+# define E_PARSE_NEAR		"21sh: parse error near "
 
 
 /*
@@ -255,5 +259,11 @@ void			initial_set_fd(t_ast *redir, char **file, int *stream_fd,
 																int flag);
 int				set_fd(int *fd, char *word_fd);
 int				close_fd(int fd);
+int				prepare_lexer(char *line, t_envlist **envlst, t_init *in, t_input *input);
+void			init_env(char **env, t_envlist **envlst);
+void			quote_removal(char **str, int is_heredoc);
+void			remove_heredoc_baskslash(char **str, size_t *i, size_t *rep);
+void			remove_backslash(char **str, size_t *i, size_t *rep);
+void			set_keypress(t_init *in);
 
 #endif

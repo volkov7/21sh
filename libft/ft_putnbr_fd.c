@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   ft_putnbr_fd.c                                     :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: jsance <jsance@student.42.fr>              +#+  +:+       +#+        */
+/*   By: nriker <marvin@42.fr>                      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2019/09/08 19:22:05 by jsance            #+#    #+#             */
-/*   Updated: 2019/09/08 19:25:35 by jsance           ###   ########.fr       */
+/*   Created: 2019/09/07 14:59:21 by nriker            #+#    #+#             */
+/*   Updated: 2019/09/10 13:19:18 by nriker           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,28 +14,27 @@
 
 void	ft_putnbr_fd(int n, int fd)
 {
-	int i;
-	int copy;
+	char	s[12];
+	int		i;
 
-	i = 1;
-	if (n == -2147483648)
+	i = 0;
+	if (n == 0)
+		ft_putchar_fd('0', fd);
+	else if (n == -2147483648)
+		ft_putstr_fd("-2147483648", fd);
+	else
 	{
-		copy = n;
-		n++;
+		if (n < 0)
+		{
+			ft_putchar_fd('-', fd);
+			n *= -1;
+		}
+		while (n)
+		{
+			s[i++] = '0' + n % 10;
+			n /= 10;
+		}
 	}
-	if (n < 0)
-	{
-		n = -n;
-		ft_putchar_fd('-', fd);
-	}
-	if (n >= 10)
-	{
-		ft_putnbr_fd(n / 10, fd);
-		if (copy == -2147483648)
-			ft_putchar_fd('8', fd);
-		else
-			ft_putnbr_fd(n % 10, fd);
-	}
-	if (n < 10)
-		ft_putchar_fd('0' + n, fd);
+	while (i)
+		ft_putchar_fd(s[--i], fd);
 }

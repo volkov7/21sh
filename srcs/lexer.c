@@ -1,3 +1,4 @@
+#include "ft_21sh.h"
 #include "lexer.h"
 #include <stdio.h>//don't forget delete
 
@@ -121,33 +122,127 @@ void			delete_tree(t_ast **ast)
 	free(*ast);
 }
 
-int				main(int argc, char **argv, char **env)
+int				is_contain_quote(char *str)
 {
-	// -----getline--------
-	char		*line = NULL;
-	size_t		linecap = 0;
-	ssize_t		linelen;
-	// -----getline--------
+	size_t		i;
+
+	i = 0;
+	while (str[i] != '\0')
+	{
+		if (str[i] == '\'' || str[i] == '"' || str[i] == '\\')
+			return (FUNC_SUCCESS);
+		i++;
+	}
+	return (FUNC_FAIL);
+}
+
+int				is_valid_delim(t_tokenlst *token)
+{
+	if (token->type != WORD)
+		return (shell_err(E_PARSE_NEAR, get_token_str(token->type),
+													EXIT_FAILURE));
+	if (is_contain_quote(token->str) == FUNC_SUCCESS)
+	{
+		quote_removal(&(token->str), 0);
+		token->flags |= HEREDOC_NOEXP;
+	}
+	handle_exit_status(EXIT_SUCCESS);
+	return (FUNC_SUCCESS);
+}
+
+int				str_check_spec(char *str)
+{
+	size_t		i;
+
+	i = 0;
+	while (str[i] != '\0')
+	{
+		if (is_spec(str[i]))
+			return (FUNC_SUCCESS);
+		i++;
+	}
+	return (FUNC_FAIL);
+}
+
+int				set_input_heredoc(t_tokenlst *token, char **res_line)
+{
+	if (*res_line == NULL)
+		token->str = ft_strnew(0);
+	else
+		token->str = *res_line;
+	if (token->str == NULL)
+		return (shell_err(E_ALLOC_MEMORY, NULL, EXIT_FAILURE));
+	if (str_check_spec(token->str) == FUNC_SUCCESS)
+		token->flags |= HAS_SPECIAL;
+	token->flags |= IS_HEREDOC;
+	return (FUNC_SUCCESS);
+}
+
+int				handle_input_heredoc(t_init *in, t_input *input, t_tokenlst *token, char *delim)
+{
+	char		*line;
+	char		*res_line;
+
+	res_line = NULL;
+	ft_strdel(&(token->str));
+	while (1)
+	{
+		line = read_input_heredoc(in, input, 2);
+		ft_putchar('\n');
+		if (ft_strequ(line, delim))
+			break ;
+		res_line = ft_strjoinfree(res_line, line);
+		ft_strdel(&line);
+		if (res_line == NULL)
+			return (shell_err(E_ALLOC_MEMORY, NULL, EXIT_FAILURE));
+	}
+	if (set_input_heredoc(token, &res_line) == FUNC_ERROR)
+		return (FUNC_ERROR);
+	ft_strdel(&line);
+	return (FUNC_SUCCESS);
+}
+
+int				here_doc(t_tokenlst **tokenlst, t_init *in, t_input *input)
+{
+	t_tokenlst	*tmp;
+	char		*delim;
+
+	tmp = *tokenlst;
+	while (tmp != NULL)
+	{
+		if (tmp->type == DLESS)
+		{
+			tmp = tmp->next;
+			if (is_valid_delim(tmp) == FUNC_ERROR)
+				return (FUNC_ERROR);
+			if ((delim = ft_strjoin(tmp->str, "\n")) == NULL)
+				return (shell_err(E_ALLOC_MEMORY, NULL, EXIT_FAILURE));
+			if (handle_input_heredoc(in, input, tmp, delim) == FUNC_ERROR)
+				return (FUNC_ERROR);
+			ft_strdel(&delim);
+		}
+		tmp = tmp->next;
+	}
+	return (FUNC_SUCCESS);
+}
+
+int				prepare_lexer(char *line, t_envlist **envlst, t_init *in, t_input *input)
+{
 	t_tokenlst	*tokenlst = NULL;
 	t_ast		*ast = NULL;
-	t_envlist	*envlst = NULL;
 
-	init_env(env, &envlst);
-	while ((linelen = getline(&line, &linecap, stdin)) > 0)
-	{
-		line[linelen - 1] = '\0';
-		ast = NULL;
-		tokenlst = NULL;
-		lexer(&line, &tokenlst);
-		print_lex(tokenlst);
-		printf("\n");
-		parser_start(&tokenlst, &ast);
-		// print_tree(ast, 0, 0);
-		exec_complete_command(ast, &envlst);
-		clear_tokenlst(&tokenlst);
-		delete_tree(&ast);
-		free(line);
-		line = NULL;
-	}
+	ast = NULL;
+	tokenlst = NULL;
+	lexer(&line, &tokenlst);
+	here_doc(&tokenlst, in, input);
+	// print_lex(tokenlst);
+	// printf("\n");
+	parser_start(&tokenlst, &ast);
+	// print_tree(ast, 0, 0);
+	return_terminal(in);
+	exec_complete_command(ast, envlst);
+	set_keypress(in);
+	clear_tokenlst(&tokenlst);
+	delete_tree(&ast);
 	return (0);
 }

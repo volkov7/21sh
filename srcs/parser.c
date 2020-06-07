@@ -91,7 +91,7 @@ int		parser_start(t_tokenlst **token_lst, t_ast **ast)
 	tmp = (*token_lst)->next;
 	if (parser_complete_command(&tmp, ast) != FUNC_SUCCESS)
 	{
-		ft_putstr("Syntax error!\n");
+		shell_void_err(E_PARSE_NEAR, get_token_str(tmp->type), EXIT_FAILURE);
 		return (FUNC_FAIL);
 	}
 	return (FUNC_SUCCESS);

@@ -1,6 +1,7 @@
 # What is 21sh
 [![forthebadge](https://forthebadge.com/images/badges/made-with-c.svg)](https://forthebadge.com)
 [![forthebadge](http://forthebadge.com/images/badges/built-with-love.svg)](http://forthebadge.com)
+
 21sh is a bash-styled shell project completely written from scratch in C with very limited access to libraries and tools.
 
 # The (learning) goals of the project:
@@ -50,6 +51,6 @@ Run:
 ```
 ./21sh
 ```
-#Authors
+# Authors
 [Volkov Ilya][https://github.com/volkov7]
 [Alex Buyanov][https://github.com/SoliddSnake]

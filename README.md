@@ -52,5 +52,5 @@ Run:
 ./21sh
 ```
 # Authors
-[Volkov Ilya][https://github.com/volkov7]
-[Alex Buyanov][https://github.com/SoliddSnake]
+[Volkov Ilya](https://github.com/volkov7),
+[Alex Buyanov](https://github.com/SoliddSnake)

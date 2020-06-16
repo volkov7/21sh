@@ -1,6 +1,6 @@
 #include "ft_21sh.h"
 #include "lexer.h"
-#include <stdio.h>//don't forget delete
+#include <stdio.h>
 
 int				add_token_to_lst(t_tokenlst *tokenlst, t_token *token)
 {

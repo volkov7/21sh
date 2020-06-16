@@ -71,12 +71,9 @@ int		main(int argc, char **argv, char **env)
 				if (ft_strlen(input->line) && ft_strcmp(input->line, "\n")
 					&& !check_command(input))
 				{
-					//Iliya! Insert your functions instead ft_printf, use pointer input->line
 					ft_putchar('\n');
 					input->line = lineadd(&input->line, '\n', input->width - input->index);
 					prepare_lexer(input->line, &envlst, &in, input);
-
-					// ft_printf("\n%s\n", input->line);
 					break;
 				}
 				free_input(input);
@@ -99,7 +96,6 @@ int		main(int argc, char **argv, char **env)
 				{
 					copy_struct_history(copy, input);
 					free_input(copy);
-					//Iliya! Insert your functions instead ft_printf, use pointer input->line
 					ft_putchar('\n');
 					if (input->line[input->x - 8] != '\n')
 						input->line = lineadd(&input->line, '\n', input->width - input->index);
@@ -109,16 +105,7 @@ int		main(int argc, char **argv, char **env)
 						ft_printf("!%s!", input->line);
 						while (1);
 					}
-					// else if (!ft_strcmp(input->line, "lol2\n"))
-					// {
-					// 	read_input_heredoc(&in, input, 1);
-					// 	ft_printf("!%s!", input->line);
-					// 	while (1);
-					// } 
-					// ft_printf("!%s!", input->line);
-					// 	while (1);
 					prepare_lexer(input->line, &envlst, &in, input);
-					// ft_printf("\n%s\n", input->line);
 					break;
 				}
 				free_input(copy);

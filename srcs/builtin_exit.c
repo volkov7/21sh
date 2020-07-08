@@ -1,3 +1,15 @@
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   builtin_exit.c                                     :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: jsance <jsance@student.42.fr>              +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2020/07/06 15:04:29 by jsance            #+#    #+#             */
+/*   Updated: 2020/07/06 15:05:28 by jsance           ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
+
 #include "lexer.h"
 
 static int	check_exit_status(char *status)
@@ -33,7 +45,7 @@ void		builtin_exit(char **argv)
 	}
 	else if (argv[1] != NULL && argv[2] != NULL)
 	{
-		write(2, "exit: too many arguments\n", 25 );//need print wrong argument
+		write(2, "exit: too many arguments\n", 25);//need print wrong argument
 		return ;
 	}
 	else

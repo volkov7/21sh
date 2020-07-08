@@ -1,3 +1,15 @@
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   builtin_echo.c                                     :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: jsance <jsance@student.42.fr>              +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2020/07/06 15:07:54 by jsance            #+#    #+#             */
+/*   Updated: 2020/07/06 15:08:37 by jsance           ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
+
 #include "lexer.h"
 
 static char	echo_special_character(char c)
@@ -103,7 +115,8 @@ void		builtin_echo(char **argv)
 	echo_set_options(argv, &opt, &i);
 	while (argv[i] != NULL && c)
 	{
-		if ((opt & ECHO_OPT_E) == 0 || (((opt & ECHO_OPT_E) && ((opt & ECHO_OPT_SMALL_E)))))
+		if ((opt & ECHO_OPT_E) == 0
+			|| (((opt & ECHO_OPT_E) && ((opt & ECHO_OPT_SMALL_E)))))
 			echo_replace_special_char(&argv[i], &c);
 		ft_putstr(argv[i]);
 		if (argv[i + 1] != NULL && c == 1)

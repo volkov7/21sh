@@ -6,7 +6,7 @@
 /*   By: root <root@student.42.fr>                  +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2020/05/24 08:02:57 by root              #+#    #+#             */
-/*   Updated: 2020/05/24 12:56:36 by root             ###   ########.fr       */
+/*   Updated: 2020/07/07 13:37:39 by root             ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -220,6 +220,8 @@ void		pressed_end(t_input *input)
 
 void		pressed_prev_word(t_input *input)
 {
+	if (!ft_strlen(input->line))
+		return ;
 	if (!input->qt)
 		set_cursor_prev_word(input->x - input->index, input);
 	else if (input->quote)
@@ -232,13 +234,10 @@ void		pressed_second_word(t_input *input)
 {
 	int		width;
 
+	if (!ft_strlen(input->line))
+		return ;
 	width = input->width - input->index;
 	set_cursor_second_word(input->x - input->index, width, input);
-}
-
-void		pressed_copy(t_input *input)
-{
-	
 }
 
 int			specialpress(t_init *in, t_input *input, char buf[7])
@@ -247,12 +246,26 @@ int			specialpress(t_init *in, t_input *input, char buf[7])
 		pressed_home(input);
 	else if (buf[0] == 27 && buf[1] == 91 && buf[2] == 70 && !buf[3])
 		pressed_end(input);
-	else if (buf[0] == 27 && buf[1] == 91 && buf[2] == 54 && buf[3] == 126)
+	else if (buf[0] == 2 && !buf[1] && !buf[2] && !buf[3])
+		/*
+		** Pressed CTRL + T
+		*/
 		pressed_prev_word(input);
-	else if (buf[0] == 27 && buf[1] == 91 && buf[2] == 53 && buf[3] == 126)
+	else if (buf[0] == 20 && !buf[1] && !buf[2] && !buf[3])
+		/*
+		** Pressed CTRL + Y
+		*/
 		pressed_second_word(input);
-	else if (buf[0] == 1 && !buf[1] && !buf[2] && !buf[3])
-		pressed_copy(input);
-	
+	else if (buf[0] == 9 && !buf[1] && !buf[2] && !buf[3])
+		press_tab(in, input);
+	// else if (buf[0] == 1 && !buf[1] && !buf[2] && !buf[3])
+	// /*
+	// ** Pressed CTRL + A
+	// */
+	// 	pressed_copy(input);
+	// else if (buf[0] == 1 && !buf[1] && !buf[2] && !buf[3])
+	// 	pressed_insert(input);
+	// else if (buf[0] == 1 && !buf[1] && !buf[2] && !buf[3])
+	// 	pressed_cut(input);
 	return (1);
 }

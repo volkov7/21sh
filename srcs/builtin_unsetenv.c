@@ -1,5 +1,16 @@
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   builtin_unsetenv.c                                 :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: jsance <jsance@student.42.fr>              +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2020/07/06 16:02:30 by jsance            #+#    #+#             */
+/*   Updated: 2020/07/06 16:02:31 by jsance           ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
+
 #include "lexer.h"
-#include <stdio.h>
 
 void	delete_env_var(t_envlist **envlst, char *value)
 {
@@ -12,7 +23,6 @@ void	delete_env_var(t_envlist **envlst, char *value)
 	if (tmp != NULL && ft_strnequ(tmp->value, value, len)
 							&& tmp->value[len] == '=')
 	{
-		printf("HERE\n");
 		*envlst = (*envlst)->next;
 		ft_strdel(&(tmp->value));
 		free(tmp);

@@ -6,7 +6,7 @@
 /*   By: root <root@student.42.fr>                  +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2020/02/28 18:13:28 by nriker            #+#    #+#             */
-/*   Updated: 2020/05/24 07:39:46 by root             ###   ########.fr       */
+/*   Updated: 2020/07/04 15:09:33 by root             ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -42,22 +42,45 @@ int			check_plus(t_input *input)
 	return (1);
 }
 
+void		print_last_input_qt(t_input *input)
+{
+	if (input->quote)
+		ft_printf("\e[%d;%dH", input->c - input->qlines_in_com + 1, input->c2);
+	else if (input->dquote)
+		ft_printf("\e[%d;%dH", input->c - input->dqlines_in_com + 1, input->c2);
+}
+
 void		clear_last_input(t_input *input)
 {
-	int		plus;
-
 	get_curs_pos_inend(input);
 	input->c = get_curs_row();
 	get_index_for_clear(input);
+	e++;
 	if (!input->flag && input->qt)
 	{
+		// while (1);
+		// if (e > 3)
+		// {
+		// 	while (1);
+		// }
+
+			// ft_printf("!%d %d %d ?%d?!", input->qt, input->flag, input->c, input->lines_in_com);
+
 		if (input->quote)
 			ft_printf("\e[%d;%dH", input->c - input->qlines_in_com + 1, input->c2);
 		else if (input->dquote)
 			ft_printf("\e[%d;%dH", input->c - input->dqlines_in_com + 1, input->c2 + 1);
 	}
-	else 
+	// else if (input->flag && input->qt)
+	// {
+	// 	print_last_input_qt(input);
+	// }
+	else
+	{ 
 		ft_printf("\e[%d;%dH", input->c - input->lines_in_com + 1, input->c2);
+	}
+	
+
 	ft_putstr("\e[J");
 }
 
@@ -138,7 +161,10 @@ t_input		*up_sub(t_init *in, t_input *input, char buf[7])
 		}
 		else
 		{
-			input->next->x_quote = get_curs_col();
+			if (input->next->quote) //why is it need?
+				input->next->x_quote = get_curs_col();//why only x_quote? but x_dquote?
+			else if (input->next->dquote)
+				input->next->x_dquote = get_curs_col();
 			input->y = get_curs_row();
 			input->next->dflag = input->next->sub_qt;
 			input->next->save_x = input->next->x;
@@ -173,10 +199,22 @@ t_input		*down_sub(t_init *in, t_input *input, char buf[7])
 		if ((input->prev->x % input->prev->col == 1)
 			&& input->prev->x == input->width)
 			ft_putchar('\n');
-		if (!input->prev->flag)
+		if (!input->prev->flag && !input->prev->qt)
 		{
 			return_curstox(input->prev);
-			input->prev->x = get_curs_col();
+			// input->prev->x = get_curs_col();
+			// e++;
+			// if (e > 0)
+			// {
+			// 	ft_printf("!%d %d!", input->prev->width, input->prev->x);
+			// 	while (1);
+			// }
+			input->prev->y = get_curs_row();
+		}
+		else if (!input->prev->flag && input->prev->qt)
+		{
+			return_curstox_qt(input->prev);
+			// input->prev->x = get_curs_col();
 			input->prev->y = get_curs_row();
 		}
 		else if (input->prev->flag)

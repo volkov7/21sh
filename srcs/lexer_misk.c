@@ -1,3 +1,15 @@
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   lexer_misk.c                                       :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: jsance <jsance@student.42.fr>              +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2020/07/06 15:11:08 by jsance            #+#    #+#             */
+/*   Updated: 2020/07/06 15:11:17 by jsance           ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
+
 #include "lexer.h"
 
 t_tokenlst		*new_token_lst(int flags, char *str, t_tokens type)
@@ -35,7 +47,7 @@ int				is_spec(char c)
 	return (0);
 }
 
-int		ft_isblank(char c)
+int				ft_isblank(char c)
 {
 	if (c == ' ' || c == '\t')
 		return (1);

@@ -1,3 +1,15 @@
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   handle_expansions.c                                :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: jsance <jsance@student.42.fr>              +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2020/07/06 15:11:46 by jsance            #+#    #+#             */
+/*   Updated: 2020/07/06 15:12:22 by jsance           ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
+
 #include "lexer.h"
 
 void	remove_quote(char **str, size_t *i, size_t *rep)
@@ -82,7 +94,6 @@ int		handle_expansions(t_ast *node, t_envlist *envlst)
 	{
 		if (search_spec(node, envlst) == FUNC_ERROR)
 			return (FUNC_ERROR);
-		
 	}
 	if (node->type == WORD && !(node->flags & HEREDOC_NOEXP))
 		quote_removal(&node->str, node->flags & IS_HEREDOC);

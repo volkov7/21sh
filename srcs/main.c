@@ -6,7 +6,7 @@
 /*   By: root <root@student.42.fr>                  +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2019/12/08 16:13:48 by nriker            #+#    #+#             */
-/*   Updated: 2020/05/24 10:48:58 by root             ###   ########.fr       */
+/*   Updated: 2020/07/04 11:17:34 by root             ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -71,9 +71,12 @@ int		main(int argc, char **argv, char **env)
 				if (ft_strlen(input->line) && ft_strcmp(input->line, "\n")
 					&& !check_command(input))
 				{
+					//Iliya! Insert your functions instead ft_printf, use pointer input->line
 					ft_putchar('\n');
 					input->line = lineadd(&input->line, '\n', input->width - input->index);
 					prepare_lexer(input->line, &envlst, &in, input);
+
+					// ft_printf("\n%s\n", input->line);
 					break;
 				}
 				free_input(input);
@@ -96,16 +99,26 @@ int		main(int argc, char **argv, char **env)
 				{
 					copy_struct_history(copy, input);
 					free_input(copy);
+					//Iliya! Insert your functions instead ft_printf, use pointer input->line
 					ft_putchar('\n');
 					if (input->line[input->x - 8] != '\n')
 						input->line = lineadd(&input->line, '\n', input->width - input->index);
-					if (!ft_strcmp(input->line, "lol\n"))
-					{
-						read_input_heredoc(&in, input, 2);
-						ft_printf("!%s!", input->line);
-						while (1);
-					}
+					// if (!ft_strcmp(input->line, "lol\n"))
+					// {
+					// 	read_input_heredoc(&in, input, 2);
+					// 	ft_printf("!%s!", input->line);
+					// 	while (1);
+					// }
+					// else if (!ft_strcmp(input->line, "lol2\n"))
+					// {
+					// 	read_input_heredoc(&in, input, 1);
+					// 	ft_printf("!%s!", input->line);
+					// 	while (1);
+					// } 
+					// ft_printf("!%s!", input->line);
+					// 	while (1);
 					prepare_lexer(input->line, &envlst, &in, input);
+					// ft_printf("\n%s\n", input->line);
 					break;
 				}
 				free_input(copy);

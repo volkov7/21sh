@@ -6,7 +6,7 @@
 /*   By: root <root@student.42.fr>                  +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2020/02/14 12:31:34 by nriker            #+#    #+#             */
-/*   Updated: 2020/05/24 12:49:56 by root             ###   ########.fr       */
+/*   Updated: 2020/07/07 13:36:02 by root             ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -444,312 +444,76 @@ int			enter_press(t_init *in, t_input *input, char buf[7])
 /*
 ** Pressed DELETE 
 */
-int			delete_press(t_init *in, t_input *input, char buf[7])
-{
-	if ((buf[0] == 127 && !buf[1] && !buf[2]))
-	{
-		input->p_tab = 0;
-		input->p_tab_part = 0;
-		input->flag_qt = 0;
-		if (input->flag && input->qt && input->x > input->index)
-		{
-			if (input->x == input->width)
-			{
-				if (input->line[input->x - (input->index + 1)] == '\n')
-				{
-					ft_putstr("\e[1A");
-					input->dflag--;
-					input->x_quote = sub_get_x(input, 3);
-					ft_printf("\e[%dG", input->x_quote);
-					input->y--;
-					input->sub_qt--;
-				}
-				else if (input->x_quote % input->col == 1)
-				{
-					ft_putstr("\e[1P");
-					ft_putstr("\e[1A");
-					ft_printf("\e[%dG", input->col);
-					input->x_quote = input->col;
-					input->y--;
-				}
-				else
-				{
-					ft_putstr("\e[1D");
-					input->x_quote--;
-				}
-				ft_putstr("\e[1P");
-			}
-			else if ((input->flag && input->qt && input->x > input->index))
-			{
-				if (input->qt && input->line[input->x - (input->index + 1)] == '\n')
-				{
-					input->y--;
-					if (input->dflag > 0)
-						input->dflag--;
-					if (input->sub_qt > 0)
-						input->sub_qt--;
-					input->x_quote = sub_get_x(input, 3);
-					ft_printf("\e[%d;%dH", input->y, input->x_quote);
-					ft_putstr("\e[J");
-					ft_putstr(&input->line[input->x - input->index]);
-					ft_printf("\e[%d;%dH", input->y, input->x_quote);
-				}
-				else if (input->x_quote % input->col == 1)
-				{
-					input->y--;
-					ft_printf("\e[%d;%dH", input->y, input->col);
-					ft_putstr("\e[J");
-					ft_putstr(&input->line[input->x - input->index]);
-					ft_printf("\e[%d;%dH", input->y, input->col);
-					input->x_quote = input->col;
-				}
-				else
-				{
-					input->x_quote--;
-					ft_putstr("\e[1D");
-					ft_putstr("\e[J");
-					ft_putstr(&input->line[input->x - input->index]);
-					ft_printf("\e[%d;%dH", input->y, input->x_quote);
-				}
-			}
-			input->x--;
-			input->width--;
-			// if (input->hdoc)
-			// 	input->x_hdoc--;
-			if (!(input->width % input->col))
-			{
-				input->lines_in_com--;
-				input->row--;
-			}
-			input->line = lineremove(input->line, input->x - input->index);
-		}
-		else if (input->x > input->index && !input->qt)
-		{
-			if (input->x == input->width)
-			{
-				if (input->x % input->col == 1)
-				{
-					ft_putstr("\e[1A");
-					ft_printf("\e[%dG", input->col);
-					input->y--;
-				}
-				else
-					ft_putstr("\e[1D");
-				ft_putstr("\e[1P");
-			}
-			else if (input->x < input->width)
-			{
-				if (input->x % input->col == 1)
-				{
-					ft_putstr("\e[1A");
-					ft_printf("\e[%dG", input->col);
-					input->y--;
-					if (input->flag)
-					{
-						char	*str;
-						str = ft_strcut(input->line, '\n');
-						ft_putstr(&str[input->x - input->index]);
-						free(str);
-					}
-					else
-						ft_putstr(&input->line[input->x - input->index]);
-					ft_putchar(' ');
-					ft_printf("\e[%d;%dH", input->y, input->col);
-				}
-				else
-				{
-					char	*str;
-
-					ft_putstr("\e[1D");
-					if (ft_strchr(input->line, '\n'))
-					{
-						str = ft_strcut(input->line, '\n');
-						ft_putstr(&str[input->x - input->index]);
-						free(str);
-					}
-					else
-						ft_putstr(&input->line[input->x - input->index]);
-					ft_putchar(' ');
-					if (!(input->x % input->col))
-						ft_printf("\e[%d;%dH", input->y, input->col - 1);
-					else
-						ft_printf("\e[%d;%dH", input->y, (input->x % input->col) - 1);
-				}
-			}
-			input->x--;
-			input->width--;
-			if (!(input->width % input->col))
-			{
-				input->lines_in_com--;
-				input->row--;
-			}
-			input->line = lineremove(input->line, input->x - input->index);
-		}
-		else if (input->x_quote > input->index && !input->flag)
-		{
-			if (input->x_quote == input->width_quote)
-			{
-				if (input->x_quote % input->col == 1)
-				{
-					ft_putstr("\e[1A");
-					ft_printf("\e[%dG", input->col);
-					// input->line = lineremove(input->line, input->x_quote - 1);
-					input->y--;
-				}
-				else
-					ft_putstr("\e[1D");
-				ft_putstr("\e[1P");
-			}
-			else if (input->x_quote < input->width_quote)
-			{
-				if (input->x_quote % input->col == 1)
-				{
-					ft_putstr("\e[1A");
-					ft_printf("\e[%dG", input->col);
-					input->y--;
-					ft_putstr(&input->line[input->x - input->index]);
-					ft_putchar(' ');
-					ft_printf("\e[%d;%dH", input->y, input->col);
-				}
-				else
-				{
-					ft_putstr("\e[1D");
-					ft_putstr(&input->line[input->x - input->index]);
-					ft_putchar(' ');
-					if (!(input->x_quote % input->col))
-						ft_printf("\e[%d;%dH", input->y, input->col - 1);
-					else
-						ft_printf("\e[%d;%dH", input->y, (input->x_quote % input->col) - 1);
-				}
-			}
-			input->x--;
-			input->width--;
-			input->x_quote--;
-			input->width_quote--;
-			if (!(input->width_quote % input->col))
-			{
-				input->lines_in_qt--;
-				input->qlines_in_com--;
-				input->row--;
-			}
-			input->line = lineremove(input->line, input->x - input->index);
-		}
-		else if (input->x_dquote > 9 && !input->flag)
-		{
-			if (input->x_dquote == input->width_dquote)
-			{
-				if (input->x_dquote % input->col == 1)
-				{
-					ft_putstr("\e[1A");
-					ft_printf("\e[%dG", input->col);
-					// input->line = lineremove(input->line, input->x_dquote - 1);
-					input->y--;
-				}
-				else
-					ft_putstr("\e[1D");
-				ft_putstr("\e[1P");
-			}
-			else if (input->x_dquote < input->width_dquote)
-			{
-				if (input->x_dquote % input->col == 1)
-				{
-					ft_putstr("\e[1A");
-					ft_printf("\e[%dG", input->col);
-					input->y--;
-					ft_putstr(&input->line[input->x - 8]);
-					ft_putchar(' ');
-					ft_printf("\e[%d;%dH", input->y, input->col);
-				}
-				else
-				{
-					ft_putstr("\e[1D");
-					ft_putstr(&input->line[input->x - 8]);
-					ft_putchar(' ');
-					if (!(input->x_dquote % input->col))
-						ft_printf("\e[%d;%dH", input->y, input->col - 1);
-					else
-						ft_printf("\e[%d;%dH", input->y, (input->x_dquote % input->col) - 1);
-				}
-			}
-			input->x--;
-			input->width--;
-			input->x_dquote--;
-			input->width_dquote--;
-			if (!(input->width_dquote % input->col))
-			{
-				input->lines_in_qt--;
-				input->dqlines_in_com--;
-				input->row--;
-			}
-			input->line = lineremove(input->line, input->x - input->index);
-		}
-	}
-	else if (buf[0] == 27 && buf[1] == 91 && buf[2] == 51 && buf[3] == 126
-		&& !buf[4])
-	{
-		input->p_tab = 0;
-		input->p_tab_part = 0;
-		if (input->x < input->width && !input->qt)
-		{
-			ft_putstr(&input->line[input->x - (input->index - 1)]);
-			ft_putchar(' ');
-			if (input->x == input->col)
-				ft_printf("\e[%d;%dH", input->y, input->col);
-			else
-				ft_printf("\e[%d;%dH", input->y, (input->x % input->col));
-			// input->len--;
-			// input->len_x--;
-			input->width--;
-			if (!(input->width % input->col))
-			{
-				input->lines_in_com--;
-				input->row--;
-			}
-			input->line = lineremove(input->line, input->x - input->index);
-		}
-		else if (input->x_quote < input->width_quote)
-		{
-			ft_putstr(&input->line[input->x - (input->index - 1)]);
-			ft_putchar(' ');
-			if (input->x_quote == input->col)
-				ft_printf("\e[%d;%dH", input->y, input->col);
-			else
-				ft_printf("\e[%d;%dH", input->y, (input->x_quote % input->col));
-			// input->len--;
-			// input->len_x--;
-			input->width_quote--;
-			if (!(input->width % input->col))
-			{
-				input->lines_in_qt--;
-				input->dqlines_in_com--;
-				input->lines_in_com--;
-				input->row--;
-			}
-			input->line = lineremove(input->line, input->x - input->index);
-		}
-		else if (input->x_dquote < input->width_dquote)
-		{
-			ft_putstr(&input->line[input->x - (input->index - 1)]);
-			ft_putchar(' ');
-			if (input->x_dquote == input->col)
-				ft_printf("\e[%d;%dH", input->y, input->col);
-			else
-				ft_printf("\e[%d;%dH", input->y, (input->x_dquote % input->col));
-			// input->len--;
-			// input->len_x--;
-			input->width_dquote--;
-			if (!(input->width_dquote % input->col))
-			{
-				input->lines_in_qt--;
-				input->dqlines_in_com--;
-				input->lines_in_com--;
-				input->row--;
-			}
-			input->line = lineremove(input->line, input->x - input->index);
-		}
-	}
-	return (1);
-}
+// int			delete_press(t_init *in, t_input *input, char buf[7])
+// {
+	
+// 	// else if (buf[0] == 27 && buf[1] == 91 && buf[2] == 51 && buf[3] == 126
+// 	// 	&& !buf[4])
+// 	// {
+// 	// 	while (1);
+// 	// 	input->p_tab = 0;
+// 	// 	input->p_tab_part = 0;
+// 	// 	if (input->x < input->width && !input->qt)
+// 	// 	{
+// 	// 		ft_putstr(&input->line[input->x - (input->index - 1)]);
+// 	// 		ft_putchar(' ');
+// 	// 		if (input->x == input->col)
+// 	// 			ft_printf("\e[%d;%dH", input->y, input->col);
+// 	// 		else
+// 	// 			ft_printf("\e[%d;%dH", input->y, (input->x % input->col));
+// 	// 		// input->len--;
+// 	// 		// input->len_x--;
+// 	// 		input->width--;
+// 	// 		if (!(input->width % input->col))
+// 	// 		{
+// 	// 			input->lines_in_com--;
+// 	// 			input->row--;
+// 	// 		}
+// 	// 		input->line = lineremove(input->line, input->x - input->index);
+// 	// 	}
+// 	// 	else if (input->x_quote < input->width_quote)
+// 	// 	{
+// 	// 		ft_putstr(&input->line[input->x - (input->index - 1)]);
+// 	// 		ft_putchar(' ');
+// 	// 		if (input->x_quote == input->col)
+// 	// 			ft_printf("\e[%d;%dH", input->y, input->col);
+// 	// 		else
+// 	// 			ft_printf("\e[%d;%dH", input->y, (input->x_quote % input->col));
+// 	// 		// input->len--;
+// 	// 		// input->len_x--;
+// 	// 		input->width_quote--;
+// 	// 		if (!(input->width % input->col))
+// 	// 		{
+// 	// 			input->lines_in_qt--;
+// 	// 			input->dqlines_in_com--;
+// 	// 			input->lines_in_com--;
+// 	// 			input->row--;
+// 	// 		}
+// 	// 		input->line = lineremove(input->line, input->x - input->index);
+// 	// 	}
+// 	// 	else if (input->x_dquote < input->width_dquote)
+// 	// 	{
+// 	// 		ft_putstr(&input->line[input->x - (input->index - 1)]);
+// 	// 		ft_putchar(' ');
+// 	// 		if (input->x_dquote == input->col)
+// 	// 			ft_printf("\e[%d;%dH", input->y, input->col);
+// 	// 		else
+// 	// 			ft_printf("\e[%d;%dH", input->y, (input->x_dquote % input->col));
+// 	// 		// input->len--;
+// 	// 		// input->len_x--;
+// 	// 		input->width_dquote--;
+// 	// 		if (!(input->width_dquote % input->col))
+// 	// 		{
+// 	// 			input->lines_in_qt--;
+// 	// 			input->dqlines_in_com--;
+// 	// 			input->lines_in_com--;
+// 	// 			input->row--;
+// 	// 		}
+// 	// 		input->line = lineremove(input->line, input->x - input->index);
+// 	// 	}
+// 	// }
+// 	return (1);
+// }
 
 t_input		*read_input(t_init *in, t_input *input)
 {
@@ -774,6 +538,9 @@ t_input		*read_input(t_init *in, t_input *input)
 		// }
 		
 		// specialpress(in, input, buf);
+
+		
+
 		if ((buf[0] == 13 || buf[0] == 10) && !buf[1]
 			&& input->flag && check_flag_qt(input))
 			input = insert_history_line(input);

@@ -1,3 +1,15 @@
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   launch_child_proc.c                                :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: jsance <jsance@student.42.fr>              +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2020/07/06 15:03:15 by jsance            #+#    #+#             */
+/*   Updated: 2020/07/06 15:03:32 by jsance           ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
+
 #include "lexer.h"
 
 int		handle_fds(int fds[3], int pipe[2])
@@ -43,7 +55,7 @@ int		check_valid_file(char *filename)
 
 	fd = open(filename, OPEN_FLAGS, PERMISSIONS);
 	if (fd == -1)
-		return(shell_err(E_CREATE_OPEN, filename, EXIT_FAILURE));
+		return (shell_err(E_CREATE_OPEN, filename, EXIT_FAILURE));
 	close(fd);
 	return (FUNC_SUCCESS);
 }

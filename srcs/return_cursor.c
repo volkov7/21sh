@@ -6,7 +6,7 @@
 /*   By: root <root@student.42.fr>                  +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2020/03/13 08:48:16 by nriker            #+#    #+#             */
-/*   Updated: 2020/05/17 15:09:05 by root             ###   ########.fr       */
+/*   Updated: 2020/07/04 12:53:34 by root             ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -94,7 +94,9 @@ void		return_curstox(t_input *input)
 	int x;
 
 	x = get_curs_col();
-	// ft_printf("%d", input->x);
+	if (input->x == input->width_dquote)
+		return ;
+	// ft_printf("%d", input->width);
 	// while (1);
 	input->c = input->width;
 	while (input->c > input->x && input->c > input->index)
@@ -112,6 +114,6 @@ void		return_curstox(t_input *input)
 		}
 		input->c--;
 	}
-	input->y = get_curs_row();
+	// input->y = get_curs_row();
 	// fill_curs_params(input);
 }

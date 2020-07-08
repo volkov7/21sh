@@ -1,3 +1,15 @@
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   dollar_expansion.c                                 :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: jsance <jsance@student.42.fr>              +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2020/07/06 14:48:33 by jsance            #+#    #+#             */
+/*   Updated: 2020/07/06 14:55:25 by jsance           ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
+
 #include "lexer.h"
 
 int		is_env_char(char c)
@@ -66,5 +78,5 @@ int		dollar_expansion(char **str, size_t *i, t_envlist *envlst)
 	if ((*str)[*i + 1] == '?')
 		return (question_expansion(str, i));
 	else
-		return (envvar_expansion(str, i , envlst));
+		return (envvar_expansion(str, i, envlst));
 }

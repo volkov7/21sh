@@ -1,3 +1,15 @@
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   parser_cmd_suffix.c                                :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: jsance <jsance@student.42.fr>              +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2020/07/06 14:59:07 by jsance            #+#    #+#             */
+/*   Updated: 2020/07/06 15:00:44 by jsance           ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
+
 #include "lexer.h"
 
 /*
@@ -11,7 +23,8 @@ int		parser_io_redirect(t_tokenlst **token_lst, t_ast **ast)
 	filename = NULL;
 	if (TOKEN_TYPE == IO_NUMBER && ast_addnode(token_lst, ast) == FUNC_FAIL)
 		return (FUNC_FAIL);
-	if (is_redirect(TOKEN_TYPE) == 0 || ast_addnode(token_lst, ast) == FUNC_FAIL)
+	if (is_redirect(TOKEN_TYPE) == FUNC_FAIL
+		|| ast_addnode(token_lst, ast) == FUNC_FAIL)
 		return (return_ast_del(ast));
 	if (TOKEN_TYPE != WORD || ast_addnode(token_lst, &filename) == FUNC_FAIL)
 		return (return_ast_del(ast));
@@ -21,7 +34,7 @@ int		parser_io_redirect(t_tokenlst **token_lst, t_ast **ast)
 		(*ast)->left->left = filename;
 	(*ast)->right = (*ast)->left;
 	(*ast)->left = NULL;
-	return(FUNC_SUCCESS);
+	return (FUNC_SUCCESS);
 }
 
 int		parser_cmd_sufix(t_tokenlst **token_lst, t_ast **ast,

@@ -1,3 +1,15 @@
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   builtin_cd_create_newpath.c                        :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: jsance <jsance@student.42.fr>              +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2020/07/06 16:13:55 by jsance            #+#    #+#             */
+/*   Updated: 2020/07/06 16:14:14 by jsance           ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
+
 #include "lexer.h"
 
 void	skip_dot(char *c, size_t *i)
@@ -75,7 +87,8 @@ void	create_newpath(char **newpath, char *argpath)
 			i++;
 		if (argpath[i] != '\0')
 		{
-			if (ft_strnequ(&argpath[i], "..", 2) || ft_strnequ(&argpath[i], "../", 3))
+			if (ft_strnequ(&argpath[i], "..", 2)
+				|| ft_strnequ(&argpath[i], "../", 3))
 				one_step_back(newpath, argpath, &i);
 			else if (argpath[i] == '.' || ft_strnequ(&argpath[i], "./", 2))
 				skip_dot(&argpath[i], &i);

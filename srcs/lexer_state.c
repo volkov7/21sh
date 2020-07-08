@@ -1,3 +1,15 @@
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   lexer_state.c                                      :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: jsance <jsance@student.42.fr>              +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2020/07/06 15:50:09 by jsance            #+#    #+#             */
+/*   Updated: 2020/07/06 15:55:55 by jsance           ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
+
 #include "lexer.h"
 
 static	void	lexer_set_flags(t_token *token, char c)
@@ -10,7 +22,8 @@ static	void	lexer_set_flags(t_token *token, char c)
 		token->flags ^= QUOTE_STATE;
 }
 
-void			lexer_change_state(t_token *token, void(*lexer_state)(t_token *token))
+void			lexer_change_state(t_token *token,
+									void (*lexer_state)(t_token *))
 {
 	(token->str_index)++;
 	(token->tk_len)++;

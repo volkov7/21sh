@@ -1,3 +1,15 @@
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   parser.c                                           :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: jsance <jsance@student.42.fr>              +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2020/07/06 15:01:17 by jsance            #+#    #+#             */
+/*   Updated: 2020/07/06 15:02:58 by jsance           ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
+
 #include "lexer.h"
 
 /*
@@ -14,7 +26,7 @@ int		parser_pipe_sequence(t_tokenlst **token_lst, t_ast **ast)
 		while (TOKEN_TYPE == PIPE)
 		{
 			if (ast_addnode(token_lst, ast) == FUNC_FAIL)
-				return(return_ast_del(ast));
+				return (return_ast_del(ast));
 			if (add_right_node(token_lst, ast, &parser_command) == FUNC_FAIL)
 				return (FUNC_FAIL);
 		}
@@ -27,7 +39,8 @@ int		parser_pipe_sequence(t_tokenlst **token_lst, t_ast **ast)
 **	After parser_pipe_sequence, we can have an AND_IF or OR_IF tokens
 **	In that case the current token is adding to the ast
 **	previous ast adding to left node below AND_IF or OR_IF token
-**	calling parser_pipe_sequence and result put in right node below AND_IF or OR_IF token
+**	calling parser_pipe_sequence and result put in right node
+**	below AND_IF or OR_IF token
 */
 
 int		parser_and_or(t_tokenlst **token_lst, t_ast **ast)
@@ -37,7 +50,7 @@ int		parser_and_or(t_tokenlst **token_lst, t_ast **ast)
 		while (TOKEN_TYPE == AND_IF || TOKEN_TYPE == OR_IF)
 		{
 			if (ast_addnode(token_lst, ast) == FUNC_FAIL)
-				return(return_ast_del(ast));
+				return (return_ast_del(ast));
 			if (!add_right_node(token_lst, ast, &parser_pipe_sequence))
 				return (FUNC_FAIL);
 		}
@@ -60,7 +73,7 @@ int		parser_list(t_tokenlst **token_lst, t_ast **ast)
 		if (TOKEN_TYPE == SEMICOL)
 		{
 			if (ast_addnode(token_lst, ast) == FUNC_FAIL)
-				return(return_ast_del(ast));
+				return (return_ast_del(ast));
 			if (TOKEN_TYPE != NEWLINE && TOKEN_TYPE != END)
 			{
 				if (add_right_node(token_lst, ast, &parser_list) == FUNC_FAIL)
@@ -76,8 +89,8 @@ int		parser_complete_command(t_tokenlst **token_lst, t_ast **ast)
 {
 	if (parser_list(token_lst, ast) == FUNC_FAIL || (TOKEN_TYPE != NEWLINE &&
 													TOKEN_TYPE != END))
-		return(return_ast_del(ast));
-	return(FUNC_SUCCESS);
+		return (return_ast_del(ast));
+	return (FUNC_SUCCESS);
 }
 
 /*

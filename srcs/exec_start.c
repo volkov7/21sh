@@ -1,5 +1,4 @@
 #include "lexer.h"
-#include <stdio.h>//don't forget delete
 
 int		exec_command(t_ast *ast, t_job **jobs)
 {
@@ -15,7 +14,7 @@ int		exec_command(t_ast *ast, t_job **jobs)
 int		exec_pipe_sequence(t_ast *ast, t_job **jobs)
 {
 	if (ast->type != PIPE)
-		return(exec_command(ast, jobs));
+		return (exec_command(ast, jobs));
 	if (ast->left->type == PIPE)
 	{
 		if (exec_pipe_sequence(ast->left, jobs) == FUNC_ERROR)
@@ -36,7 +35,7 @@ int		exec_and_or(t_ast *ast, t_job **jobs)
 			*jobs = create_job();
 		if (*jobs == NULL)
 			return (FUNC_ERROR);
-		return(exec_pipe_sequence(ast, jobs));
+		return (exec_pipe_sequence(ast, jobs));
 	}
 	if (exec_and_or(ast->left, jobs) == FUNC_ERROR)
 		return (FUNC_ERROR);

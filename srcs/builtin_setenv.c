@@ -1,3 +1,15 @@
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   builtin_setenv.c                                   :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: jsance <jsance@student.42.fr>              +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2020/07/06 16:07:21 by jsance            #+#    #+#             */
+/*   Updated: 2020/07/06 16:08:13 by jsance           ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
+
 #include "lexer.h"
 
 int		set_new_var(t_envlist **tmp, char **new_var)
@@ -55,7 +67,7 @@ void	builtin_setenv(char **argv, t_envlist **envlst, t_proc *proc)
 		setenv_error(E_TOO_FEW_ARGS, EXIT_FAILURE, proc);
 	else if (argv[2] != NULL && argv[3] != NULL)
 		setenv_error(E_TOO_MANY_ARGS, EXIT_FAILURE, proc);
-	if (set_env(envlst, argv[1], (argv[2] == NULL) ? "\0" : argv[2]) == FUNC_ERROR)
+	if (set_env(envlst, argv[1], (argv[2] == NULL) ? "\0" : argv[2]) == -1)
 		setenv_error(E_ALLOC_MEMORY, EXIT_FAILURE, proc);
 	if (proc->pid == UNINIT)
 		handle_exit_status(EXIT_SUCCESS);

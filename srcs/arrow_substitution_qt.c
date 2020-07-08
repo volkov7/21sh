@@ -6,7 +6,7 @@
 /*   By: root <root@student.42.fr>                  +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2020/03/09 15:19:08 by nriker            #+#    #+#             */
-/*   Updated: 2020/05/24 06:22:42 by root             ###   ########.fr       */
+/*   Updated: 2020/07/04 14:04:32 by root             ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -176,6 +176,8 @@ int			get_len_of_line(t_input *input)
 void		up_sub_qt(t_input *input)
 {
 	input->x_quote = get_curs_col();
+
+
 	// input->sx = input->x;
 	// ft_putchar('Q');
 	if (!input->flag_qt)

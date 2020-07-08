@@ -1,3 +1,15 @@
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   builtin_type.c                                     :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: jsance <jsance@student.42.fr>              +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2020/07/06 16:03:27 by jsance            #+#    #+#             */
+/*   Updated: 2020/07/06 16:07:10 by jsance           ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
+
 #include "lexer.h"
 
 static void	type_print(char *command, char *binary)
@@ -56,7 +68,7 @@ static int	type_is_builtin(char *command)
 	return (FUNC_FAIL);
 }
 
-void	builtin_type(char **argv, t_envlist *envlst)
+void		builtin_type(char **argv, t_envlist *envlst)
 {
 	size_t	i;
 

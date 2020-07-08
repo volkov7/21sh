@@ -1,3 +1,15 @@
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   builtin_cd_chgdir.c                                :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: jsance <jsance@student.42.fr>              +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2020/07/06 16:14:29 by jsance            #+#    #+#             */
+/*   Updated: 2020/07/06 16:14:42 by jsance           ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
+
 #include "lexer.h"
 
 char	*canonical_form(char *cwd, char *argpath)
@@ -52,5 +64,5 @@ int		change_dir(char *argpath, int opt, t_envlist **envlst)
 		newpath = getcwd(NULL, 0);
 	if (update_env_var(&cwd, &newpath, envlst) == FUNC_ERROR)
 		return (FUNC_ERROR);
-	return (FUNC_SUCCESS);	
+	return (FUNC_SUCCESS);
 }

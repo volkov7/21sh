@@ -1,6 +1,17 @@
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   lexer.c                                            :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: jsance <jsance@student.42.fr>              +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2020/07/06 15:12:58 by jsance            #+#    #+#             */
+/*   Updated: 2020/07/06 15:43:21 by jsance           ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
+
 #include "ft_21sh.h"
 #include "lexer.h"
-#include <stdio.h>
 
 int				add_token_to_lst(t_tokenlst *tokenlst, t_token *token)
 {
@@ -18,7 +29,7 @@ int				add_token_to_lst(t_tokenlst *tokenlst, t_token *token)
 		if (!(ft_strncpy(str, &(token->str[tk_start]), token->tk_len)))
 			return (FUNC_ERROR);
 	}
-	if (tokenlst_addback(&tokenlst, token->flags, str, token->tk_type) == FUNC_ERROR)
+	if (tokenlst_addback(&tokenlst, token->flags, str, token->tk_type) == -1)
 		return (FUNC_ERROR);
 	return (FUNC_SUCCESS);
 }
@@ -27,7 +38,7 @@ void			clean_token(t_token *token)
 {
 	(*token).flags = 0;
 	(*token).tk_len = 0;
-	(*token).tk_type = ERROR;;
+	(*token).tk_type = ERROR;
 }
 
 int				lexer_scanner(char *input, t_tokenlst *token_lst)
@@ -139,8 +150,7 @@ int				is_contain_quote(char *str)
 int				is_valid_delim(t_tokenlst *token)
 {
 	if (token->type != WORD)
-		return (shell_err(E_PARSE_NEAR, get_token_str(token->type),
-													EXIT_FAILURE));
+		return (shell_err(E_PARSE_NEAR, get_token_str(token->type), EXIT_FAILURE));
 	if (is_contain_quote(token->str) == FUNC_SUCCESS)
 	{
 		quote_removal(&(token->str), 0);
@@ -178,7 +188,8 @@ int				set_input_heredoc(t_tokenlst *token, char **res_line)
 	return (FUNC_SUCCESS);
 }
 
-int				handle_input_heredoc(t_init *in, t_input *input, t_tokenlst *token, char *delim)
+int				handle_input_heredoc(t_init *in, t_input *input,
+									t_tokenlst *token, char *delim)
 {
 	char		*line;
 	char		*res_line;
@@ -226,7 +237,8 @@ int				here_doc(t_tokenlst **tokenlst, t_init *in, t_input *input)
 	return (FUNC_SUCCESS);
 }
 
-int				prepare_lexer(char *line, t_envlist **envlst, t_init *in, t_input *input)
+int				prepare_lexer(char *line, t_envlist **envlst, t_init *in,
+															t_input *input)
 {
 	t_tokenlst	*tokenlst = NULL;
 	t_ast		*ast = NULL;

@@ -1,5 +1,16 @@
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   launch_job.c                                       :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: jsance <jsance@student.42.fr>              +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2020/07/06 14:48:33 by jsance            #+#    #+#             */
+/*   Updated: 2020/07/06 14:56:06 by jsance           ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
+
 #include "lexer.h"
-#include <stdio.h>//don't forget delete
 
 void	handle_andor(t_job **job)
 {
@@ -66,7 +77,7 @@ void	jobs_get_status(t_job **jobs)
 	int		opt;
 
 	opt = 0;
-	pid = waitpid(WAIT_ANY, &status, opt);// Здесь не работает, если включить функцию signals
+	pid = waitpid(WAIT_ANY, &status, opt);
 	while (found_process(pid, status, jobs) == FUNC_SUCCESS)
 		pid = waitpid(WAIT_ANY, &status, opt);
 }

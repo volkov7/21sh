@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   fork_job.c                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: jsance <jsance@student.42.fr>              +#+  +:+       +#+        */
+/*   By: nriker <nriker@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2020/07/06 15:09:30 by jsance            #+#    #+#             */
-/*   Updated: 2020/07/06 15:09:31 by jsance           ###   ########.fr       */
+/*   Updated: 2020/08/05 20:03:24 by nriker           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -27,25 +27,8 @@ void	setup_stdout(t_proc *proc, int fds[3], int pipes[2])
 		fds[1] = STDOUT_FILENO;
 }
 
-void	clean_after_fork(t_proc *proc, int fds[3], int pipes[2])
-{
-	if (fds[0] != STDIN_FILENO && fds[0] != UNINIT)
-		close(fds[0]);
-	if (fds[1] != STDOUT_FILENO && fds[1] != UNINIT)
-		close(fds[1]);
-	fds[0] = pipes[0];
-	if (proc->binary != NULL)
-		ft_strdel(&proc->binary);
-	if (proc->argv != NULL)
-		ft_strarrdel(&proc->argv);
-	if (proc->env != NULL)
-		ft_strarrdel(&proc->env);
-}
-
 void	setup_fork(t_proc *proc, int fds[3], int pipe[2], t_envlist **envlst)
 {
-	int		status;
-
 	if (proc->pid < 0)
 	{
 		ft_putstr_fd(E_FORK_FAIL, 2);

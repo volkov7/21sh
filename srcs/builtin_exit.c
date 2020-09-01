@@ -6,7 +6,7 @@
 /*   By: jsance <jsance@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2020/07/06 15:04:29 by jsance            #+#    #+#             */
-/*   Updated: 2020/07/06 15:05:28 by jsance           ###   ########.fr       */
+/*   Updated: 2020/08/02 10:20:53 by jsance           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -40,12 +40,12 @@ void		builtin_exit(char **argv)
 	{
 		if (check_exit_status(argv[1]) == FUNC_SUCCESS)
 			exit(ft_atoi(argv[1]));
-		write(2, "numeric argument required\n", 26);//need print wrong argument
+		write(2, "numeric argument required\n", 26);
 		exit(255);
 	}
 	else if (argv[1] != NULL && argv[2] != NULL)
 	{
-		write(2, "exit: too many arguments\n", 25);//need print wrong argument
+		write(2, "exit: too many arguments\n", 25);
 		return ;
 	}
 	else

@@ -1,8 +1,20 @@
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   misk_functions.c                                   :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: jsance <jsance@student.42.fr>              +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2020/08/02 10:25:12 by jsance            #+#    #+#             */
+/*   Updated: 2020/08/02 10:27:20 by jsance           ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
+
 #include "lexer.h"
 
 void	ft_strarrdel(char ***arr)
 {
-	size_t 	i;
+	size_t	i;
 
 	i = 0;
 	if (arr != NULL && *arr != NULL)
@@ -68,4 +80,19 @@ int		validate_binary(char *binary)
 	if (S_ISDIR(st.st_mode))
 		return (shell_err(E_IS_DIR, binary, EXIT_NOT_EXECUTE));
 	return (FUNC_SUCCESS);
+}
+
+void	clean_after_fork(t_proc *proc, int fds[3], int pipes[2])
+{
+	if (fds[0] != STDIN_FILENO && fds[0] != UNINIT)
+		close(fds[0]);
+	if (fds[1] != STDOUT_FILENO && fds[1] != UNINIT)
+		close(fds[1]);
+	fds[0] = pipes[0];
+	if (proc->binary != NULL)
+		ft_strdel(&proc->binary);
+	if (proc->argv != NULL)
+		ft_strarrdel(&proc->argv);
+	if (proc->env != NULL)
+		ft_strarrdel(&proc->env);
 }

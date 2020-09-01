@@ -20,7 +20,6 @@ SRCS = lexer \
 		parser_command \
 		exec_start \
 		exec_job_misk \
-		print_tree \
 		launch_job \
 		fork_job \
 		prepare_argv_proc \
@@ -68,7 +67,6 @@ SRCS = lexer \
 		copylastinput \
 		press_tab \
 		check_tab \
-		check_tab_q\
 		tab_list \
 		tab_insert_word \
 		tab_insert_word_q \
@@ -80,13 +78,11 @@ SRCS = lexer \
 		qs \
 		return_cursor \
 		return_cursor_2 \
-		clear_tab_output \
 		cut_freestrend \
 		free_buf \
 		get_cursor_row \
 		get_cursor_col \
 		check_quotes \
-		keypress \
 		letterpress \
 		check_letters \
 		pressed_letter \
@@ -98,6 +94,42 @@ SRCS = lexer \
 		read_input_heredoc \
 		fill_input_params_hd \
 		specialpress \
+		delete_press \
+		return_cursor_when_ctrl_c \
+		main_cycle \
+		get_envlst \
+		change_size_of_window \
+		cycle_first_input \
+		cycle_other_input \
+		check_qt \
+		arrow_substitution_up \
+		arrow_substitution_down \
+		pressed_letter_q_history \
+		pressed_clear_window \
+		pressed_home \
+		pressed_end \
+		pressed_prev_word \
+		pressed_second_word \
+		pressed_start_string \
+		pressed_end_string \
+		enter_press \
+		check_flag_qt \
+		press_left \
+		press_right \
+		pressed_ctrl_d_heredok \
+		insert_print_string \
+		delete_history_qt_between \
+		delete_history_qt_between_x \
+		delete_standart_letter \
+		delete_quote \
+		delete_dquote \
+		set_cursor_prev_line \
+		set_cursor_next_line \
+		heredoc \
+		heredoc_misk \
+		clear_functions \
+		insert_letter_betweenhistory \
+		print_tree \
 
 
 HEADER = 	-I./include \
@@ -107,14 +139,14 @@ OBJ =	$(addprefix obj/, $(addsuffix .o, $(SRCS)))
 
 all: $(NAME)
 
-obj/%.o: srcs/%.c
-	@gcc -c $< $(HEADER) -o $@
+obj/%.o: srcs/%.c ./include/lexer.h ./include/ft_21sh.h
+	@gcc -c $< $(HEADER) $(FLAGS) -o $@
 	
 $(NAME): obj $(OBJ)
 	@tput setaf 7; tput bold; echo "Compiling LIB"
 	@make -C libft
 	@tput setaf 7; tput bold; echo "Compiling 21sh"
-	@gcc $(OBJ) $(HEADER) -o $(NAME) $(LIB) -ltermcap
+	@gcc $(OBJ) $(HEADER) $(FLAGS) -o $(NAME) $(LIB) -ltermcap
 	@tput setaf 2; tput bold; echo "DONE 21sh"
 
 obj:

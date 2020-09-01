@@ -6,7 +6,7 @@
 /*   By: jsance <jsance@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2020/07/06 15:48:45 by jsance            #+#    #+#             */
-/*   Updated: 2020/07/06 15:48:46 by jsance           ###   ########.fr       */
+/*   Updated: 2020/08/02 10:24:28 by jsance           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -53,5 +53,5 @@ int		add_right_node(t_tokenlst **token_lst, t_ast **ast,
 	if (parser_func(token_lst, &right_node) == FUNC_FAIL)
 		return (return_ast_del(ast));
 	(*ast)->right = right_node;
-	return(FUNC_SUCCESS);
+	return (FUNC_SUCCESS);
 }

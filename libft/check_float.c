@@ -6,7 +6,7 @@
 /*   By: nriker <nriker@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2019/10/16 21:19:14 by nriker            #+#    #+#             */
-/*   Updated: 2019/11/03 15:56:22 by nriker           ###   ########.fr       */
+/*   Updated: 2020/08/05 20:52:44 by nriker           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -76,7 +76,7 @@ static char		*create_double_str(t_union *un, t_float *sfl)
 	if ((i = ft_abs(63 - sfl->exp)) >= 16382)
 	{
 		i -= 16382;
-		sfl->del = multiplyfree(sfl->del, g_fmin_16382);
+		sfl->del = multiplyfree(sfl->del, "123");
 		while (i--)
 			sfl->del = multiplyfree(sfl->del, "5");
 	}

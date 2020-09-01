@@ -3,14 +3,20 @@
 /*                                                        :::      ::::::::   */
 /*   executing.c                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: jsance <jsance@student.42.fr>              +#+  +:+       +#+        */
+/*   By: nriker <nriker@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2020/07/06 15:59:07 by jsance            #+#    #+#             */
-/*   Updated: 2020/07/06 15:59:08 by jsance           ###   ########.fr       */
+/*   Updated: 2020/08/05 20:05:03 by nriker           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "lexer.h"
+
+void	running_proc(void)
+{
+	handle_exit_status(128 + SIGINT);
+	ft_putchar('\n');
+}
 
 void	execution_builtin(t_proc *proc, t_envlist **envlst)
 {

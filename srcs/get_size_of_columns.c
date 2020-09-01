@@ -6,7 +6,7 @@
 /*   By: nriker <nriker@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2019/11/20 12:34:19 by nriker            #+#    #+#             */
-/*   Updated: 2020/03/12 18:11:35 by nriker           ###   ########.fr       */
+/*   Updated: 2020/08/05 20:17:12 by nriker           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -41,10 +41,8 @@ static void	get_one_column(t_column *cl)
 
 static void	get_col_raw(t_column *cl)
 {
-	int		mas;
 	int		value;
 
-	mas = 0;
 	value = 0;
 	cl->col_got = cl->col / cl->width_column;
 	if (!cl->col_got)

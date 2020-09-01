@@ -1,3 +1,15 @@
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   prepare_argv_proc.c                                :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: nriker <nriker@student.42.fr>              +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2020/08/02 10:29:46 by jsance            #+#    #+#             */
+/*   Updated: 2020/08/15 13:56:49 by nriker           ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
+
 #include "lexer.h"
 
 size_t	count_args(t_ast *node)
@@ -9,7 +21,7 @@ size_t	count_args(t_ast *node)
 	if (node == NULL || node->type != WORD)
 		return (0);
 	tmp = node;
-	while(tmp != NULL && (tmp->type == WORD))
+	while (tmp != NULL && (tmp->type == WORD))
 	{
 		i++;
 		tmp = tmp->left;
@@ -22,7 +34,7 @@ char	**malloc_argv(size_t numb_args)
 	char	**argv;
 
 	if (numb_args > 0)
-		argv = (char**)malloc(sizeof(char*) * numb_args + 1);
+		argv = (char**)malloc(sizeof(char*) * (numb_args + 1));
 	else
 	{
 		if ((argv = (char**)malloc(sizeof(char*) * 2)) == NULL)
@@ -30,10 +42,9 @@ char	**malloc_argv(size_t numb_args)
 		argv[0] = ft_strdup("cat");
 		argv[1] = NULL;
 		return (argv);
-		
 	}
 	argv[numb_args] = NULL;
-	return (argv);	
+	return (argv);
 }
 
 char	**create_proc_argv(t_ast *node)
@@ -72,7 +83,6 @@ int		prepare_argv_proc(char ***argv, t_ast *node, t_proc *proc,
 	else
 		proc->redir = node;
 	*argv = create_proc_argv(node);
-	// print_tree(node, 0, 0);
 	if (*argv == NULL)
 		return (shell_err(E_ALLOC_MEMORY, NULL, EXIT_FAILURE));
 	return (FUNC_SUCCESS);

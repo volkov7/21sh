@@ -5,8 +5,8 @@
 /*                                                    +:+ +:+         +:+     */
 /*   By: nriker <nriker@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2019/12/09 08:16:38 by nriker            #+#    #+#             */
-/*   Updated: 2020/02/12 16:29:53 by nriker           ###   ########.fr       */
+/*   Created: 2020/08/02 06:55:55 by nriker            #+#    #+#             */
+/*   Updated: 2020/08/02 06:55:56 by nriker           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -29,9 +29,6 @@ void			create_init(t_init *in)
 		ft_error_select(2);
 	if ((in->fd = open("/dev/tty", O_RDWR)) == -1)
 		ft_error_select(0);
-	// in->input = 0;
-	// in->story = 0;
-	// in->copys = 0;
 	in->bad_window = 0;
 	in->call = 0;
 	in->row = 0;

@@ -6,7 +6,7 @@
 /*   By: nriker <nriker@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2020/02/12 10:49:22 by nriker            #+#    #+#             */
-/*   Updated: 2020/02/13 09:53:43 by nriker           ###   ########.fr       */
+/*   Updated: 2020/08/02 06:40:24 by nriker           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,9 +14,9 @@
 
 char		*cut_freestrend(char **line)
 {
-    int		i;
-    int		j;
-    char	*copy;
+	int		i;
+	int		j;
+	char	*copy;
 
 	i = -1;
 	j = -1;

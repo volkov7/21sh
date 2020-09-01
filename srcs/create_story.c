@@ -3,16 +3,16 @@
 /*                                                        :::      ::::::::   */
 /*   create_story.c                                     :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: nriker <nriker@student.42.fr>              +#+  +:+       +#+        */
+/*   By: jsance <jsance@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2020/02/06 16:23:51 by nriker            #+#    #+#             */
-/*   Updated: 2020/02/07 15:17:06 by nriker           ###   ########.fr       */
+/*   Updated: 2020/08/02 10:23:06 by jsance           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "ft_21sh.h"
 
-t_story		*create_story()
+t_story		*create_story(void)
 {
 	t_story		*story;
 

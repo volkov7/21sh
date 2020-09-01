@@ -6,7 +6,7 @@
 /*   By: nriker <nriker@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2019/10/01 13:50:33 by nriker            #+#    #+#             */
-/*   Updated: 2019/11/03 15:49:35 by nriker           ###   ########.fr       */
+/*   Updated: 2020/08/15 14:03:16 by nriker           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -71,7 +71,8 @@ int			ft_printf(const char *s, ...)
 		}
 		else
 			ft_printf_else(struct_flags, s, &i);
+	i = struct_flags->count;
 	free(struct_flags);
 	va_end(args);
-	return (struct_flags->count);
+	return (i);
 }

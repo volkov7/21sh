@@ -1,3 +1,15 @@
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   check_binary.c                                     :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: jsance <jsance@student.42.fr>              +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2020/08/02 10:21:30 by jsance            #+#    #+#             */
+/*   Updated: 2020/08/02 10:21:58 by jsance           ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
+
 #include "lexer.h"
 
 int		get_paths(char ***paths, t_envlist *envlst)
@@ -18,7 +30,7 @@ int		check_dir(char *path, char *filename, char **binary, DIR *dir)
 	struct dirent	*dp;
 	struct stat		st;
 
-	while((dp = readdir(dir)) != NULL)
+	while ((dp = readdir(dir)) != NULL)
 	{
 		if (ft_strcmp(dp->d_name, filename) == 0)
 		{

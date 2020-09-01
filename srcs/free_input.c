@@ -5,8 +5,8 @@
 /*                                                    +:+ +:+         +:+     */
 /*   By: nriker <nriker@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2020/02/03 16:30:45 by nriker            #+#    #+#             */
-/*   Updated: 2020/02/13 10:27:59 by nriker           ###   ########.fr       */
+/*   Created: 2020/08/01 19:13:09 by nriker            #+#    #+#             */
+/*   Updated: 2020/08/01 19:13:27 by nriker           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -20,9 +20,10 @@ void		free_input(t_input *input)
 			input = input->prev;
 		while (input->next)
 		{
-
 			if (input->line)
 				free(input->line);
+			if (input->ctrl_d_line)
+				free(input->ctrl_d_line);
 			if (input->word)
 				free(input->word);
 			input = input->next;
@@ -32,7 +33,7 @@ void		free_input(t_input *input)
 		if (input->line)
 			free(input->line);
 		if (input->word)
-				free(input->word);
+			free(input->word);
 		free(input);
 	}
 }

@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   return_cursor_2.c                                  :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: root <root@student.42.fr>                  +#+  +:+       +#+        */
+/*   By: nriker <nriker@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2020/05/04 09:41:18 by nriker            #+#    #+#             */
-/*   Updated: 2020/05/04 14:04:13 by root             ###   ########.fr       */
+/*   Created: 2020/08/02 06:04:36 by nriker            #+#    #+#             */
+/*   Updated: 2020/08/02 06:04:50 by nriker           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -34,9 +34,6 @@ void			in_quote(t_input *input)
 		input->c--;
 	}
 	input->y = get_curs_row();
-	// ft_putstr("\e[1D");
-	// ft_printf("%d %d", input->width, input->width_quote);
-	// while (1);
 }
 
 void			in_dquote(t_input *input)

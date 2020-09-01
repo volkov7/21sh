@@ -6,7 +6,7 @@
 /*   By: jsance <jsance@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2020/07/06 15:10:07 by jsance            #+#    #+#             */
-/*   Updated: 2020/07/06 15:10:08 by jsance           ###   ########.fr       */
+/*   Updated: 2020/07/12 08:51:06 by jsance           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -16,7 +16,6 @@ int		create_heredoc_fd(char *str)
 {
 	int		pipes[2];
 
-	handle_exit_status(EXIT_FAILURE);
 	if (pipe(pipes) == -1)
 		return (shell_err(E_CANT_CREAT_PIPE, NULL, EXIT_FAILURE));
 	if (write(pipes[1], str, ft_strlen(str)) == -1)
@@ -26,7 +25,6 @@ int		create_heredoc_fd(char *str)
 		return (FUNC_ERROR);
 	}
 	close(pipes[1]);
-	handle_exit_status(EXIT_SUCCESS);
 	return (pipes[0]);
 }
 

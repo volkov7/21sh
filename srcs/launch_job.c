@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   launch_job.c                                       :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: jsance <jsance@student.42.fr>              +#+  +:+       +#+        */
+/*   By: nriker <nriker@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2020/07/06 14:48:33 by jsance            #+#    #+#             */
-/*   Updated: 2020/07/06 14:56:06 by jsance           ###   ########.fr       */
+/*   Updated: 2020/08/05 20:10:04 by nriker           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -42,7 +42,10 @@ void	handle_andor(t_job **job)
 
 int		set_status(t_proc **proc, int status)
 {
-	(*proc)->exit_status = handle_exit_status(WEXITSTATUS(status));
+	if (WIFEXITED(status) != 0)
+		(*proc)->exit_status = handle_exit_status(WEXITSTATUS(status));
+	if (WIFSIGNALED(status) != 0)
+		(*proc)->exit_status = handle_exit_status(128 + WTERMSIG(status));
 	kill((*proc)->pid, SIGINT);
 	return (FUNC_SUCCESS);
 }
@@ -90,14 +93,19 @@ void	launch_job(t_job *job, t_envlist **envlst)
 	t_job	*tmp;
 
 	tmp = job;
+	signal(SIGINT, (void*)&running_proc);
 	while (tmp != NULL)
 	{
 		fds[0] = STDIN_FILENO;
+		fds[1] = STDOUT_FILENO;
 		fds[2] = STDERR_FILENO;
 		pipe[0] = UNINIT;
 		pipe[1] = UNINIT;
 		ret = fork_job(tmp, fds, pipe, envlst);
 		jobs_get_status(&job);
 		handle_andor(&tmp);
+		if (ret == -111100000)
+			return ;
 	}
+	signal(SIGINT, &sig_exit);
 }

@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   tab_insert_word_q.c                                :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: root <root@student.42.fr>                  +#+  +:+       +#+        */
+/*   By: nriker <nriker@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2020/05/04 14:10:08 by nriker            #+#    #+#             */
-/*   Updated: 2020/05/17 02:33:03 by root             ###   ########.fr       */
+/*   Created: 2020/08/01 21:45:37 by nriker            #+#    #+#             */
+/*   Updated: 2020/08/05 20:11:30 by nriker           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -22,7 +22,7 @@ void		curs_endofword_dq(t_input *input)
 		else
 			ft_putstr("\e[1C");
 		input->x_dquote++;
-        input->x++;
+		input->x++;
 	}
 	if (input->x_dquote % input->col == 1)
 	{
@@ -32,7 +32,7 @@ void		curs_endofword_dq(t_input *input)
 	else
 		ft_putstr("\e[1D");
 	input->x--;
-    input->x_dquote--;
+	input->x_dquote--;
 }
 
 void		curs_endofword_q(t_input *input)
@@ -116,13 +116,13 @@ void		delete_word_q(t_input *input)
 
 void		tab_insert_word_q(t_input *input, char **buf)
 {
-    int x;
+	int x;
 
 	x = 0;
 	curs_endofword_q(input);
 	delete_word_q(input);
 	input->c = input->x;
-	while (x < ft_strlen(buf[0]))
+	while ((size_t)x < ft_strlen(buf[0]))
 	{
 		input->line = lineadd(&input->line, buf[0][x], input->c - input->index);
 		input->width++;

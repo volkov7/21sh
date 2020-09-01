@@ -6,7 +6,7 @@
 /*   By: nriker <nriker@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2019/11/20 10:55:04 by nriker            #+#    #+#             */
-/*   Updated: 2020/03/12 17:58:27 by nriker           ###   ########.fr       */
+/*   Updated: 2020/08/02 06:05:38 by nriker           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -42,7 +42,6 @@ void	print_column(char **buf, t_column *cl)
 		{
 			if (y < buf_s)
 				printtt(cl->width_column - 1, buf[y]);
-				// ft_printf("%-*s ", cl->width_column - 1, buf[y]);
 			y += cl->row_got;
 		}
 		ft_putchar('\n');

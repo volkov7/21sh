@@ -1,3 +1,15 @@
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   exec_start.c                                       :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: jsance <jsance@student.42.fr>              +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2020/08/02 10:22:27 by jsance            #+#    #+#             */
+/*   Updated: 2020/08/02 10:22:28 by jsance           ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
+
 #include "lexer.h"
 
 int		exec_command(t_ast *ast, t_job **jobs)
@@ -6,7 +18,7 @@ int		exec_command(t_ast *ast, t_job **jobs)
 
 	job = get_last_job(jobs);
 	if (job_add_proc(job) == FUNC_ERROR)
-		exit(1);
+		return (FUNC_ERROR);
 	job->last_proc->node = ast;
 	return (FUNC_SUCCESS);
 }
@@ -69,29 +81,6 @@ int		exec_complete_command(t_ast *ast, t_envlist **envlst)
 		return (FUNC_ERROR);
 	if (exec_list(ast, &jobs) == FUNC_ERROR)
 		return (FUNC_ERROR);
-	
-	// ---------------------------------------------
-	// t_job	*tmp;
-	// t_proc	*tmp2;
-	// tmp = jobs;
-	// while (tmp)
-	// {
-	// 	int		i = 0;
-	// 	tmp2 = tmp->processes;
-	// 	while(tmp2)
-	// 	{
-	// 		write(1, "\n", 1);
-	// 		print_tree(tmp2->node, 0, 0);
-	// 		printf("process = %d\n", i);
-	// 		printf("andor = %d\n", tmp->andor);
-	// 		i++;
-	// 		write(1, "===========", 11);
-	// 		tmp2 = tmp2->next;
-	// 	}
-	// 	tmp = tmp->next;
-	// }
-	// write(1, "\n", 1);
-	// ---------------------------------------------
 	launch_job(jobs, envlst);
 	clear_jobs(&jobs);
 	return (FUNC_SUCCESS);

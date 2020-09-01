@@ -1,3 +1,15 @@
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   lexer.h                                            :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: jsance <jsance@student.42.fr>              +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2020/07/06 14:48:33 by jsance            #+#    #+#             */
+/*   Updated: 2020/08/07 12:54:37 by jsance           ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
+
 #ifndef LEXER_H
 # define LEXER_H
 
@@ -20,6 +32,7 @@
 # define WITE_ANY			-1
 # define EXIT_NOT_FOUND		127
 # define EXIT_NOT_EXECUTE	126
+# define CTRLD				256
 # define TOKEN_CHAR			token.str[token.str_index]
 # define CURRENT_CHAR		token->str[token->str_index]
 # define TOKEN_TYPE			(*token_lst)->type
@@ -66,7 +79,6 @@
 # define E_NO_PERM			"21sh: permission denied: "
 # define E_NOT_FOUND		"21sh: command not found: "
 # define E_PARSE_NEAR		"21sh: parse error near "
-
 
 /*
 **----------------------------------environment--------------------------------
@@ -130,7 +142,7 @@ typedef struct	s_ast
 	char				*str;
 	int					flags;
 	struct s_ast		*left;
-	struct s_ast		*right;	
+	struct s_ast		*right;
 }				t_ast;
 
 /*
@@ -165,17 +177,14 @@ typedef	struct	s_job
 	struct s_job		*next;
 }				t_job;
 
-
-
 void			lexer_state_word(t_token *token);
 void			lexer_change_state(t_token *token,
 						void(*lexer_state)(t_token *token));
 int				parser_cmd_sufix(t_tokenlst **token_lst, t_ast **ast,
 						t_ast **last_cmd_arg, t_ast **last_prefix);
 int				parser_start(t_tokenlst **token_lst, t_ast **ast);
-void			print_tree(t_ast *ast, int space, int depth);// debugging
-char			*get_token_str(t_tokens type);// mb need delete
-void			print_lex(t_tokenlst *token_lst);// debugging
+char			*get_token_str(t_tokens type);
+void			running_proc(void);
 int				exec_complete_command(t_ast *ast, t_envlist **envlst);
 void			launch_job(t_job *job, t_envlist **envlst);
 int				is_redirect(t_tokens type);
@@ -192,6 +201,8 @@ int				cd_error(char *usedpath, char *argpath, char **newpath,
 															char **cwd);
 int				shell_err(char *error, char *arg, int exit_status);
 void			shell_void_err(char *error, char *arg, int exit_status);
+char			*shell_char_err(char *error, char *arg, int exit_status);
+void			shell_exit_err(char *error, char *arg, int exit_status);
 void			print_err(char *err, char *arg);
 int				set_env(t_envlist **envlst, char *var, char *value);
 void			create_newpath(char **newpath, char *argpath);
@@ -233,7 +244,8 @@ void			clear_jobs(t_job **jobs);
 int				job_add_proc(t_job *job);
 t_job			*get_last_job(t_job **jobs);
 t_job			*create_job(void);
-int				fork_job(t_job *job, int fds[3], int pipe[2], t_envlist **envlst);
+int				fork_job(t_job *job, int fds[3], int pipe[2],
+													t_envlist **envlst);
 int				prepare_argv_proc(char ***argv, t_ast *node, t_proc *proc,
 															t_envlist *envlst);
 void			ft_strarrdel(char ***arr);
@@ -259,11 +271,20 @@ void			initial_set_fd(t_ast *redir, char **file, int *stream_fd,
 																int flag);
 int				set_fd(int *fd, char *word_fd);
 int				close_fd(int fd);
-int				prepare_lexer(char *line, t_envlist **envlst, t_init *in, t_input *input);
+void			prepare_lexer(char *line, t_envlist **envlst, t_init *in,
+															t_input *input);
 void			init_env(char **env, t_envlist **envlst);
 void			quote_removal(char **str, int is_heredoc);
 void			remove_heredoc_baskslash(char **str, size_t *i, size_t *rep);
 void			remove_backslash(char **str, size_t *i, size_t *rep);
 void			set_keypress(t_init *in);
+t_envlist		*get_envlst(t_envlist *envlst);
+void			child_need_to_die(void);
+int				here_doc(t_tokenlst **tokenlst, t_init *in, t_input *input);
+int				is_contain_quote(char *str);
+void			ft_realloc(char **line, const char *buf);
+int				set_input_heredoc(t_tokenlst *token, char **res_line);
+void			delete_tree(t_ast **ast);
+void			clear_tokenlst(t_tokenlst **tokenlst);
 
 #endif

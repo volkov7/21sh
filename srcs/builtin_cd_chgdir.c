@@ -6,7 +6,7 @@
 /*   By: jsance <jsance@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2020/07/06 16:14:29 by jsance            #+#    #+#             */
-/*   Updated: 2020/07/06 16:14:42 by jsance           ###   ########.fr       */
+/*   Updated: 2020/08/16 10:17:46 by jsance           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -16,7 +16,7 @@ char	*canonical_form(char *cwd, char *argpath)
 {
 	char	*newpath;
 
-	newpath = ft_strnew(ft_strlen(cwd) + ft_strlen(argpath));
+	newpath = ft_strnew(ft_strlen(cwd) + ft_strlen(argpath) + 1);
 	if (newpath == NULL)
 		return (NULL);
 	if (argpath[0] == '/')

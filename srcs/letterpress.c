@@ -3,95 +3,81 @@
 /*                                                        :::      ::::::::   */
 /*   letterpress.c                                      :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: root <root@student.42.fr>                  +#+  +:+       +#+        */
+/*   By: nriker <nriker@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2020/03/17 14:07:13 by nriker            #+#    #+#             */
-/*   Updated: 2020/05/18 01:13:21 by root             ###   ########.fr       */
+/*   Updated: 2020/08/05 20:45:25 by nriker           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "ft_21sh.h"
+#include "lexer.h"
 
-// void		insert_print_string_hd(t_input *input)
-// {
-// 	char	*str;
-// 	int		len;
+int			pressed_ctrl_d_not_heredok_exit_qt(t_input *input)
+{
+	ft_putchar('\n');
+	ft_putstr(input->line);
+	create_input_ctrl_c(input);
+	input = get_input(0);
+	input->pressed_ctrl_d = 1;
+	return (0);
+}
 
-// 	if (input->flag)
-// 	{
-// 		len = ft_strlen(&input->line[input->x - 7] + 1);
-// 		str = ft_strnew(len);
-// 		ft_putstr(ft_strncpy(str, &input->line[input->x - 8] + 1, len));
-// 		// ft_putstr(ft_strncpy(str, &input->line[input->x - 7], ft_strlen(len)));
-// 		free(str);
-// 	}
-// 	else
-// 	{
-// 		ft_printf("%d", input->x);
-// 		ft_putstr(&input->line[input->x - 7]);
-// 	}
-// }
+void		pressed_ctrl_d_not_heredok_exit(t_init *in, t_input *input)
+{
+	ft_putstr("\nexit\n");
+	return_terminal(in);
+	close(in->fd);
+	free_input(input);
+	exit(EXIT_SUCCESS);
+}
 
-// void		insert_letter_between_hd(t_init *in, t_input *input, char buf[7])
-// {
-// 	int		x;
-// 	int		y;
+int			pressed_ctrl_d_not_heredok(t_init *in, t_input *input)
+{
+	if (!input->qt)
+	{
+		if (input->width == 8)
+			pressed_ctrl_d_not_heredok_exit(in, input);
+		else if (input->width != 8)
+			return (1);
+	}
+	else if (!input->flag && ((input->quote && input->width_quote == 8)
+		|| (input->dquote && input->width_dquote == 9)))
+		return (pressed_ctrl_d_not_heredok_exit_qt(input));
+	else
+		return (1);
+	return (0);
+}
 
-// 	ft_putchar(buf[0]);
-// 	input->row = get_curs_row();
-// 	insert_print_string_hd(input);
-// 	if (!(input->width_hdoc % input->col) && input->row == input->li)
-// 	{
-// 		ft_putchar('\n');
-// 		input->y--;
-// 	}
-// 	else if (!((input->x_hdoc) % input->col))
-// 		input->y++;
-// 	input->row = get_curs_row();
-// 	ft_printf("\e[%d;%dH", input->y, (input->x_hdoc % input->col) + 1);
-// }
-
-// void		pressed_letter_hd(t_init *in, t_input *input, char buf[7])
-// {
-// 	if (input->x_hdoc < input->width_hdoc)
-// 		insert_letter_between_hd(in, input, buf);
-// 	else
-// 	{
-// 		ft_putchar(buf[0]);
-// 		if (!((input->x_hdoc) % input->col))
-// 			ft_putchar('\n');
-// 		else if (input->width_hdoc == input->col && input->row == input->li)
-// 		{
-// 			ft_putchar('\n');
-// 			input->y--;
-// 		}
-// 	}
-// 	input->width_hdoc++;
-// 	input->x_hdoc++;
-// 	input->y = get_curs_col();
-// 	input->row = input->y;
-// }
+int			pressed_ctrl_d(t_init *in, t_input *input)
+{
+	if (!input->heredok)
+		return (pressed_ctrl_d_not_heredok(in, input));
+	else
+		return (pressed_ctrl_d_heredok(input));
+	return (0);
+}
 
 int			letterpress(t_init *in, t_input *input, char buf[7])
 {
-	if (!check_letter(buf))
+	if (buf[0] == 4 && !buf[1] && !buf[2] && !buf[3])
+		return (pressed_ctrl_d(in, input));
+	else if (!check_letter(buf))
 	{
 		input->line = lineadd(&input->line, buf[0], input->x - input->index);
-		if (!((input->width) % input->col) && !input->qt) //!!!!!!!!!!!added !input->qt
+		if (!((input->width) % input->col) && !input->qt)
 			input->lines_in_com++;
-		if ((!((input->width) % input->col)) && !input->qt) //!!!!!!!!!!added !input->qt
+		if ((!((input->width) % input->col)) && !input->qt)
 			if (input->row < input->li)
 				input->row++;
 		if (input->flag)
 			input->flag_qt = 0;
-		// if (!((input->x_quote) % input->col))
-		// 	input->lines_in_com++;
-		if (!input->qt/* && !input->hdoc*/)
-			pressed_letter(in, input, buf);
-		// else if (input->hdoc)
-		// 	pressed_letter_hd(in, input, buf);
+		if (!input->qt)
+			pressed_letter(input, buf);
+		else if (!input->flag)
+			pressed_letter_q(input, buf);
 		else
-			pressed_letter_q(in, input, buf);
+			pressed_letter_q_history(input, buf);
 		input->y = get_curs_row();
 		input->width++;
 		input->x++;

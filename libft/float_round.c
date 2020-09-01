@@ -6,7 +6,7 @@
 /*   By: nriker <nriker@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2019/10/23 19:11:46 by jsance            #+#    #+#             */
-/*   Updated: 2019/11/03 16:03:29 by nriker           ###   ########.fr       */
+/*   Updated: 2020/08/15 13:52:36 by nriker           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,14 +14,12 @@
 
 char	*fill_zero(const char *str, t_flags *fl, size_t len)
 {
-	char	*fresh;
 	char	*zero;
 	size_t	i;
 	size_t	diff;
 
 	diff = (len - ft_strlen(ft_strchr(str, '.') + 1));
 	i = fl->fprecision - len + diff;
-	fresh = ft_strnew(fl->fprecision);
 	zero = ft_strnew(i);
 	while (i--)
 		zero[i] = '0';

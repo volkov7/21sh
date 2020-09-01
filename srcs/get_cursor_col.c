@@ -6,7 +6,7 @@
 /*   By: nriker <nriker@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2020/02/14 13:29:05 by nriker            #+#    #+#             */
-/*   Updated: 2020/02/14 13:40:46 by nriker           ###   ########.fr       */
+/*   Updated: 2020/08/05 20:17:42 by nriker           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,7 +14,6 @@
 
 int			get_curs_col(void)
 {
-	size_t		i;
 	size_t		l;
 	int			row;
 	char		get[50];
@@ -27,15 +26,7 @@ int			get_curs_col(void)
 			break ;
 		l++;
 	}
-	i = 1;
 	get[l] = '\0';
-	// while (get[i - 1] != ';' && get[i] != '\0')
-	// 	i++;
-
-	// ft_printf("q%cq", *(ft_strrchr(get, ';') + 1));
-
-	// if (ft_isdigit(*(ft_strrchr(get, ';') + 1)) == false)
-	// 	return (-1);
 	row = ft_atoi(ft_strrchr(get, ';') + 1);
 	return (row);
 }

@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   fill_input_params_hd.c                             :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: root <root@student.42.fr>                  +#+  +:+       +#+        */
+/*   By: nriker <nriker@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2020/05/16 04:13:20 by root              #+#    #+#             */
-/*   Updated: 2020/05/17 06:17:56 by root             ###   ########.fr       */
+/*   Created: 2020/08/02 06:12:04 by nriker            #+#    #+#             */
+/*   Updated: 2020/08/02 06:12:11 by nriker           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -20,7 +20,5 @@ void		fill_input_params_hd(t_input *input)
 		input->index = 3;
 	else if (input->hdoc == 2)
 		input->index = 10;
-	// ft_printf("%d", ft_strlen(input->line));
-	// while (1);
 	input->width = (ft_strlen(input->line) - 1) + input->index;
 }
